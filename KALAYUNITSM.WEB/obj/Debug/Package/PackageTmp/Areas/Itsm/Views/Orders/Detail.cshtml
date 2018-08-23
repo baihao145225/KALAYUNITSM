@@ -1,0 +1,243 @@
+﻿@{
+    ViewBag.Title = "Detail";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+@model KALAYUNITSM.ENTITY.Itsm_Orders_Dto
+
+<div class="col-md-8">
+    <div class="content">
+        <table class="layui-table" style="background-color: #fafffb;">
+            <colgroup>
+                <col width="100">
+                <col>
+            </colgroup>
+            <tbody>
+                <tr>
+                    <td>登记时间：</td>
+                    <td> @String.Format("{0:f}", Model.CreateTime)</td>
+                </tr>
+                <tr>
+                    <td>联系人：</td>
+                    <td>@Model.ContactsName</td>
+                </tr>
+                <tr>
+                    <td>配置项：</td>
+                    <td>@Model.CIName</td>
+                </tr>
+                <tr>
+                    <td>简要描述：</td>
+                    <td>@Model.Name</td>
+                </tr>
+                <tr>
+                    <td>紧急度：</td>
+                    <td>@Model.UrgencyId</td>
+                </tr>
+                <tr>
+                    <td>影响范围：</td>
+                    <td>@Model.EffectId</td>
+                </tr>
+                <tr>
+                    <td>详细描述：</td>
+                    <td>@Html.Raw(Model.Description) </td>
+                </tr>
+                <tr>
+                    <td>相关附件：</td>
+                    <td><a href="#" onclick="btn_file('@Model.AttachmentFile')">@Html.Raw(Model.AttachmentFile)</a></td>
+                </tr>
+            </tbody>
+        </table>
+        @if (Model.StatusCode >= KALAYUNITSM.ENTITY.OrdersStatusEnums.已解决)
+        {
+            <table class="layui-table" style="background-color: #fafffb;">
+                <colgroup>
+                    <col width="100">
+                    <col>
+                </colgroup>
+                <tbody>
+                    <tr>
+                        <td>解决方案：</td>
+                        <td> @Html.Raw(Model.Solution)</td>
+                    </tr>
+                    <tr>
+                        <td>处理结果：</td>
+                        <td>@Model.StatusCode</td>
+                    </tr>
+                </tbody>
+            </table>
+        }
+        <div class="layui-form-item">
+            <div id="toolbar" class="layui-input-block">
+                <div id="layui-btn-group" class="layui-btn-group"></div>
+                <button class="layui-btn" onclick="javascript:history.go(-1)"><i class="fa fa-chevron-left"></i> 返回</button>
+            </div>
+        </div>
+        <!--
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button id="btnDeal" class="layui-btn" onclick="btn_chkin()">流转给</button>
+                <div class="layui-btn-group">
+                    <button class="layui-btn layui-btn-success" onclick="btn_allocate()">分派给</button>
+                    <button class="layui-btn layui-btn-warning" onclick="">补充说明</button>
+                    <button class="layui-btn layui-btn-info" onclick="btn_cancel()">取消工单</button>
+                    <button class="layui-btn layui-btn-danger" onclick="btn_solve()">解决</button>
+                    <button id="btnDeal" class="layui-btn layui-btn-link" onclick="btn_close()">关闭</button>
+                </div>
+                <button class="layui-btn layui-btn-primary" onclick="javascript:history.go(-1)">返回</button>
+            </div>
+        </div>-->
+    </div>
+</div>
+
+<div id="wwdiv"></div>
+<div class="col-md-4">
+    <div class="contentright">
+        <div class="layui-form-item">
+            <div class="col">
+                <blockquote class="layui-elem-quote-left title">基本信息</blockquote>
+                <ul class="layui-form-item">
+                    <li>
+                        匹配合同：@Model.ContractName
+                    </li>
+                    <li>
+                        工单编号：@Model.OrderId
+                    </li>
+                    <li>
+                        优先级：@Model.PriorityName
+                    </li>
+                    <li>
+                        工单状态：@Model.StatusCode
+                    </li>
+                    <li>
+                        工单登记：@Model.CreateUser
+                    </li>
+                    <li>
+                        TTO最后期限：@String.Format("{0:f}", Model.FinishTime)
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="contentright">
+        <div class="layui-form-item">
+            <div class="col">
+                <blockquote class="layui-elem-quote-left title">时间信息</blockquote>
+                <ul class="layui-timeline" id="chklist"></ul>
+            </div>
+        </div>
+    </div>
+    <div class="contentright">
+        <div class="layui-form-item">
+            <div class="col">
+                <blockquote class="layui-elem-quote-left title">知识检索</blockquote>
+                <form class="form-inline" style="margin:10px">
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="fa fa-search"></i></span>
+                        <input id="KLKeyword" class="form-control layui-input" type="text" placeholder="知识库关键字">
+                    </div>
+                </form>
+            </div>
+            <div class="layui-form-item">
+                <div class="col">
+                    <ul class="layui-timeline" id="kllist"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        $.ajax({
+            url: "/Itsm/OrderChk/GetJsonData/@Model.OrderId",
+            type: 'GET',
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                $("#chklist").html("");
+                var json = eval(data);
+                if (json.length < 1) {
+                    $("#chklist").html("尚未处理");
+                } else {
+                    $.each(json, function (index, item) {
+                        var OrderChkStatus1 = json[index].OrderChkStatusTitle;
+                        var CreateTime1 = item.CreateTime;
+                        var AllHtml = "<li class='layui-timeline-item'><i class='layui-icon layui-timeline-axis'></i><div class='layui-timeline-content layui-text'><h4>" + item.CreateUser + " " + OrderChkStatus1;
+                        if (item.NextUser != null) {
+                            AllHtml += "给：" + item.NextUser;
+                        }
+                        AllHtml += "</h4><p>于 " + item.CreateTime + "</p></div></li>";
+                        $("#chklist").append(AllHtml);
+                    });
+                }
+            }
+        })
+        $("#toolbar").orderButton("/Itsm/Orders/GetSelect/@Model.Status");
+        $("#KLKeyword").keyup(function () {
+            $.ajax({
+                url: "/Itsm/FAQs/GetJsonDataForKeyWord?keyWord=" + $("#KLKeyword").val(),
+                type: 'GET',
+                dataType: 'json',
+                timeout: 1000,
+                cache: false,
+                success: function (data) {
+                    $("#kllist").html("");
+                    var json = eval(data);
+                    if (json.length < 1) {
+                        $("#kllist").html("没有匹配的知识");
+                    } else {
+                        $.each(json, function (index, item) {
+                            //var name = json[index].Name;
+                            $("#kllist").append("<li><a href='#'  onclick='btn_kldetail(\"" + item.Id + "\")'>" + item.Name + "</a></li>");
+                        });
+                    }
+                }
+            })
+        });
+        function btn_kldetail(id) {
+            $.buttonAdd({
+                title: "查看知识",
+                content: "/Itsm/FAQs/Detail?id=" + id
+            });
+        }
+        function btn_chkin() {
+            $.buttonFree({
+                title: "工单流转",
+                width: "500px",
+                height: "500px",
+                content: "/Itsm/OrderChk/CheckInOrder?primaryKey=@Model.OrderId"
+            });
+        }
+        function btn_allocate() {
+            $.buttonFree({
+                title: "工单分派",
+                width: "500px",
+                height: "500px",
+                content: "/Itsm/OrderChk/AllocateOrder?primaryKey=@Model.OrderId"
+            });
+        }
+        function btn_solve() {
+            $.buttonFree({
+                title: "工单解决方案",
+                content: "/Itsm/OrderChk/SolveOrder?primaryKey=@Model.OrderId"
+            });
+        }
+        function btn_cancel() {
+            $.buttonChkNoTable({
+                key: "@Model.OrderId",
+                url: "/Itsm/OrderChk/CancelOrder"
+            });
+        }
+        function btn_close() {
+            $.buttonChkNoTable({
+                key: "@Model.OrderId",
+                url: "/Itsm/OrderChk/CloseOrder"
+            });
+        }
+        function btn_file(url) {
+            $.buttonFree({
+                title: "相关附件",
+                content: "/OrderFiles/" + url
+            });
+        }
+    </script>
+}

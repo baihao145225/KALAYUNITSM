@@ -1,0 +1,529 @@
+﻿@{
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>无标题文档</title>
+
+    <link rel="stylesheet" type="text/css" href="../../Content/WeeklyReports/styles/simditor.css" />
+    <link rel="stylesheet" type="text/css" href="../../Content/WeeklyReports/styles/bootstrap.css" />
+
+    <!--<script src="http://www.jq22.com/jquery/jquery-1.10.2.js"></script>-->
+
+    <script type="text/javascript" src="../../Content/WeeklyReports/scripts/jquery-1.10.2.js"></script>
+    <script type="text/javascript" src="../../Content/WeeklyReports/scripts/module.min.js"></script>
+    <script type="text/javascript" src="../../Content/WeeklyReports/scripts/hotkeys.min.js"></script>
+    <script type="text/javascript" src="../../Content/WeeklyReports/scripts/uploader.min.js"></script>
+    <script type="text/javascript" src="../../Content/WeeklyReports/scripts/simditor.js"></script>
+    <!--<script type="text/javascript" src="scripts/simditor.min.js"></script>-->
+    <!--<script src="http://www.jq22.com/jquery/1.6.4/jquery.min.js"></script>-->
+    <script type="text/javascript" src="../../Content/WeeklyReports/scripts/jquery-1.6.4.min.js"></script>
+    <script type="text/javascript" src="../../Content/WeeklyReports/jquery.reveal.js"></script>
+    <script type="text/javascript" src="../../Content/WeeklyReports/InputPlaceholder.js"></script>
+    <style type="text/css">
+        .reveal-modal-bg {
+            position: fixed;
+            height: 100%;
+            width: 100%;
+            z-index: 100;
+            display: none;
+            top: 0;
+            left: 0;
+            background: rgba(00, 00, 00, 0.8);
+        }
+
+        .reveal-modal {
+            visibility: hidden;
+              top: 80px;
+            left: 50%;
+            margin-left:-20%;
+           
+            width: 100%;
+            position: absolute;
+            z-index: 101;
+            padding: 30px 40px 34px;
+            -moz-border-radius: 5px;
+            -webkit-border-radius: 5px;
+            border-radius: 5px;
+            -moz-box-shadow: 0 0 10px rgba(0,0,0,.4);
+            -webkit-box-shadow: 0 0 10px rgba(0,0,0,.4);
+            -box-shadow: 0 0 10px rgba(0,0,0,.4);
+            background-color: #FFF;
+        }
+
+            .reveal-modal.small {
+                width: 200px;
+                margin-left: -140px;
+            }
+
+            .reveal-modal.medium {
+                width: 400px;
+                margin-left: -240px;
+            }
+
+            .reveal-modal.large {
+                width: 600px;
+                margin-left: -340px;
+            }
+
+            .reveal-modal.xlarge {
+                width: 800px;
+                margin-left: -440px;
+            }
+
+            .reveal-modal .close-reveal-modal {
+                font-size: 22px;
+                line-height: 0.5;
+                position: absolute;
+                top: 8px;
+                right: 11px;
+                color: #333;
+                text-shadow: 0 -1px 1px rbga(0,0,0,.6);
+                font-weight: bold;
+                cursor: pointer;
+            }
+
+        body {
+            background-color: #F2F2F2;
+        }
+
+        input {
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+        Div{overflow:hidden}
+    </style>
+    <!--[if lt IE 9]><style>.reveal-modal-bg{filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#cc000000,endColorstr=#cc000000);}</style><![endif]-->
+
+    <script>
+        var inputId;
+        var id = 0;
+        var UpdateFinalId = 0;
+        var selectList;
+        var workList = {
+            "已完成": "A",
+            "进展中": "B",
+            "未开始": "C",
+            "延期已完成": "D",
+        };
+        var dataTableList = {
+            data: [
+                {
+                    "ProjectName": "终端运维",
+                    "Content": "内容测试111",
+                    "ChargeMan": "张三",
+                    "Remark": "备注111",
+                    "Type": "进展中",
+
+                },
+                {
+                    "ProjectName": "机房巡检",
+                    "Content": "内容测试222",
+                    "ChargeMan": "李四",
+                    "Remark": "备注222",
+                    "Type": "已完成",
+                },
+                {
+                    "ProjectName": "技术支持",
+                    "Content": "内容测试333",
+                    "ChargeMan": "王五",
+                    "Remark": "备注333",
+                    "Type": "延期已完成",
+                }
+            ]
+        }
+        $(document).ready(function () {
+
+            getSelectList();
+
+        });
+        function getSelectList() {
+            $.ajax({
+                type: "POST",
+                url: "/WeeklyReports/WeeklyReports/GetSelectList",
+                datatype: 'json',
+                data: {
+
+                },
+                success: function (msg) {
+                    var ev = eval('(' + msg + ')');
+                    selectList = ev.selectList;
+                    addInputItems();
+                    
+                    return;
+                }
+
+            });
+        }
+        function addInputItems()
+        {
+            var itemCount = Object.keys(selectList).length;
+            $("#itemCount").val(itemCount + 2);
+            var html = "";
+            var stepCount = 0;
+            for (var i in selectList) {
+                stepCount++;
+             //   html += "<option value=" + i + ">" + selectList[i] + "</option>";
+                html+= "<div class=\"layui-inline\" style=\"width:100%;\">";
+                html += "<label class=\"layui-label\" style=\"width:20%;text-align:center\">" + selectList[i] + "：</label>";
+                html += "<div class=\"layui-input-inline\" style=\"width:80%;\">";
+                html += "<input class=\"layui-textarea\" type=\"hidden\" id=\"-ContentPart_" + stepCount + "Name\" name=\"-ContentPart_" + stepCount + "Name\" placeholder=\"\" style=\"width:95%;\" value=\"" + selectList[i] + "\" />";
+                html += "<input class=\"layui-textarea\" type=\"hidden\" id=\"-ContentPart_" + stepCount + "\" name=\"-ContentPart_" + stepCount + "\" placeholder=\"\" style=\"width:95%;\" onclick=\"openDataEditView(this)\" />";
+                html += " <div class=\"layui-textarea\"  id=\"-ContentPart_" + stepCount + "View\" name=\"-ContentPart_" + stepCount + "View\" style=\"overflow-y:auto;\" onclick=\"openDataEditView(this)\"></div>";
+            //    html += "<textarea  class=\"layui-textarea\" id=\"-ContentPart_" + stepCount + "View\" name=\"-ContentPart_" + stepCount + "View\" onclick=\"openDataEditView(this)\"></textarea>";
+        //        html += "<input class=\"layui-textarea\" type=\"text\" id=\"-ContentPart_" + stepCount + "View\" name=\"-ContentPart_" + stepCount + "View\" placeholder=\"\" style=\"width:95%;\" onclick=\"openDataEditView(this)\" />";
+                html += "<button type=\"button\" style=\"width:10%;\" onclick=\"getData('" + selectList[i] + "','-ContentPart_" + stepCount + "');\" class=\"layui-btn layui-btn-normal\"><i class=\"layui-icon\">&#xe705;</i>获取</button>";
+                html+=  "</div>";
+                html+= "</div>";
+                html+= " <hr />";
+            }
+            //stepCount++;
+            //html += "<div class=\"layui-inline\" style=\"width:100%;\">";
+            //html += "<label class=\"layui-label\" style=\"width:20%;text-align:center\">用户投诉与处理：</label>";
+            //html += "<div class=\"layui-input-inline\" style=\"width:80%;\">";
+            //html += "<input class=\"layui-textarea\" type=\"hidden\" id=\"-ContentPart_" + stepCount + "\" name=\"-ContentPart_" + stepCount + "\" placeholder=\"\" style=\"width:95%;\" onclick=\"openDataEditView(this)\" />";
+            //html += "<input class=\"layui-textarea\" type=\"text\" id=\"-ContentPart_" + stepCount + "View\" name=\"-ContentPart_" + stepCount + "View\" placeholder=\"\" style=\"width:95%;\" onclick=\"openDataEditView(this)\" />"; 
+            //html += "</div>";
+            //html += "</div>";
+            //html += " <hr />";
+
+            stepCount++;
+            html += "<div class=\"layui-inline\" style=\"width:100%;\">";
+            html += "<label class=\"layui-label\" style=\"width:20%;text-align:center\">服务级别协议达成情况：</label>";
+            html += "<div class=\"layui-input-inline\" style=\"width:80%;\">";
+            html += "<input class=\"layui-textarea\" type=\"hidden\" id=\"-ContentPart_" + stepCount + "\" name=\"-ContentPart_" + stepCount + "\" placeholder=\"\" style=\"width:95%;\" onclick=\"openDataEditView(this)\" />";
+        //    html += "<input class=\"layui-textarea\" type=\"text\" id=\"-ContentPart_" + stepCount + "View\" name=\"-ContentPart_" + stepCount + "View\" placeholder=\"\" style=\"width:95%;\" onclick=\"openDataEditView(this)\" />";
+            html += " <div class=\"layui-textarea\"  id=\"-ContentPart_" + stepCount + "View\" name=\"-ContentPart_" + stepCount + "View\" style=\"overflow-y:auto;\" onclick=\"openDataEditView(this)\"></div>";
+
+            html += "</div>";
+            html += "</div>";
+            html += " <hr />";
+
+            stepCount++;
+            html += "<div class=\"layui-inline\" style=\"width:100%;\">";
+            html += "<label class=\"layui-label\" style=\"width:20%;text-align:center\">下周工作计划：</label>";
+            html += "<div class=\"layui-input-inline\" style=\"width:80%;\">";
+            html += "<input class=\"layui-textarea\" type=\"hidden\" id=\"-ContentPart_" + stepCount + "\" name=\"-ContentPart_" + stepCount + "\" placeholder=\"\" style=\"width:95%;\" onclick=\"openDataEditView(this)\" />";
+          //  html += "<input class=\"layui-textarea\" type=\"text\" id=\"-ContentPart_" + stepCount + "View\" name=\"-ContentPart_" + stepCount + "View\" placeholder=\"\" style=\"width:95%;\" onclick=\"openDataEditView(this)\" />";
+            html += " <div class=\"layui-textarea\"  id=\"-ContentPart_" + stepCount + "View\" name=\"-ContentPart_" + stepCount + "View\" style=\"overflow-y:auto;\" onclick=\"openDataEditView(this)\"></div>";
+
+            html += "</div>";
+            html += "</div>";
+            html += " <hr />";
+            $("#PartTest").html(html);
+        }
+        function RegisterLayui()
+        {
+            layui.use('laydate', function () {
+                var laydate = layui.laydate;
+
+                //执行一个laydate实例
+                laydate.render({
+                    elem: '.layui-input' //指定元素
+                });
+            });
+        }
+        function openDataEditView(e) {
+          
+            var inputView = $(e);
+            var nameOld = inputView.attr("id");
+            //ListTest[0].Content
+            var endName = nameOld.substr(nameOld.indexOf("-") + 1, nameOld.indexOf("View") - nameOld.indexOf("-") - 1);
+            var firName = nameOld.substr(0, nameOld.indexOf("-"));
+            var finalName = firName + "-" + endName;         //获取实际取值富文本编辑器的ID       
+            var trParent = inputView.parent().parent();      //获取tr
+            $(trParent).children().each(function (j) {
+                try {
+                    var inputItemTd = $(this);     //每一行tr里的td
+                    $(inputItemTd).children().each(function (k) {
+                        var inputItem = $(this);     //这是每一个td里的input框
+                        var name = inputItem.attr("name");
+                        if (name != undefined) {
+
+                            if (name == finalName)         //找到content结点
+                            {
+                                inputId = inputItem;
+                                if (inputId.val().length == 0) {
+                                    $(".simditor-body").html("<p>&nbsp;</p>");           //有个bug，如果是空的弹出来输入法会有点问题，加一个判定                               
+                                   
+                                }
+                                else {
+                                    $(".simditor-body").html(inputId.val());
+                                }
+
+                                $('#click1').click();
+                                $(".simditor-body").focus();
+                                FixDiv();
+                                return;
+                            }
+
+                        }
+                    });
+                } catch (e) {
+
+                }
+
+            })
+
+        }
+        function ChangePlaceholder(inputName) {                          //更改texrarea的特殊div形态的placeholder     
+            var textValue = InputPlaceholderList[inputName];
+            $(".simditor-placeholder").attr("style", "top: 81px; display: block;");
+
+            $(".simditor-placeholder").html(textValue);
+        }
+        function saveData() {
+            $('.reveal-modal-bg').click();
+            inputId.val($("#editor").val());
+
+            var trParent = inputId.parent().parent();      //获取tr
+            $(trParent).children().each(function (j) {
+                try {
+                    var inputItemTd = $(this);     //每一行tr里的td
+                    $(inputItemTd).children().each(function (k) {
+                        var inputItem = $(this);     //这是每一个td里的input框
+                        var name = inputItem.attr("name");
+                        if (name != undefined) {
+                            if (name == (inputId.attr("name") + "View"))         //找到content结点
+                            {
+                                var description = $("#editor").val();                    //去除HTML标签 显示数据预览
+                                //description = description.replace(/(\n)/g, "");
+                                //description = description.replace(/(\t)/g, "");
+                                //description = description.replace(/(\r)/g, "");
+                                //description = description.replace(/<\/?[^>]*>/g, "");
+                                //description = description.replace(/\s*/g, "");
+                                //description = description.replace("&nbsp;", "");
+                            //    description = removeViewHtmlCode(description);
+                                //   inputItem.val(description);    //val是INPUT赋值
+                                //     inputItem.html(description);     //html是textarea赋值
+                            
+                                $(inputItem).html(description);             //用DIV取代INPUT窗体实现所有HTML标签都能展示的效果
+                                return;
+                            }
+                        }
+                    });
+                } catch (e) {
+
+                }
+
+            })
+
+            //    UpdateNumber();
+        }
+        function removeViewHtmlCode(description) {                         //去除所有带View的输入框HTML标签的方法 begin
+            description = description.replace(/(\n)/g, "");                //特殊定制的，保留\R回车的设定     
+            description = description.replace(/(\t)/g, "");   
+        //    description = description.replace(/(\r)/g, "");
+         //   alert(description);
+            description = description.replace(/<\/?[^>]*>/g, "");  
+      //      description = description.replace(/\s*/g, "");
+            description = description.replace("&nbsp;", "");
+        
+            return description;
+
+        }
+        function getData(projectDataName,textAreaId)
+        {
+            var projectName = $("#ProjectName").val();
+        
+            $.ajax({                                                  
+                type: "POST",
+                url: "/WeeklyReports/WeeklyReports/GetProjectReportData",
+                data: {
+                    projectName: projectName,
+                    projectDataName:projectDataName,
+                    weekCount: $("#ReportWeekDate").val()
+                },
+                success: function (msg) {                  
+                    var inputCore = $("#" + textAreaId);
+                    $(inputCore).val(msg);
+                    //var msgg = removeViewHtmlCode(msg);
+                    var inputView = $("#" + textAreaId + 'View');
+                 //   $(inputView).html(msgg);        //给TEXTAREA装html代码
+                    $(inputView).html(msg);        //给div装html代码
+                    return;
+                }
+              
+            });
+        }
+        function FixDiv() {                                         //文本框有个bug，会导致打开的时候显示错乱，用这个修正一下
+            var di = $(".simditor-wrapper.toolbar-floating");
+            di.attr("class", "simditor-wrapper");
+            di.attr("style", "");          
+        }
+    </script>
+
+</head>
+<body>
+    <div class="col-md-12">
+        @using (Html.BeginForm(null, null, FormMethod.Post))
+        {
+            <div class="content" style="background-color: #fafffb;">
+                <div id="reportData">
+                    <div class="layui-form-item">
+                        <input type="hidden" name="ProjectName" id="ProjectName" value="@ViewBag.ProjectName" />
+                        <input type="hidden" name="itemCount" id="itemCount"  />
+                        <h1 class="container-fluid" style="text-align:center;">项目运维工作周报</h1>
+
+                        <div class="layui-inline">
+                            <label class="layui-label">项目名称：</label>
+                            <div class="layui-input-inline">
+                                <label class="layui-label">@ViewBag.ProjectName</label>
+
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <label class="layui-label">汇报日期：</label>
+                            <div class="layui-input-inline">
+                                <select name="ReportWeekDate" id="ReportWeekDate" class="layui-select">
+                                    <option value="1" selected=selected>本周</option>
+                                    <option value="2">上周</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <label class="layui-label">汇报人：</label>
+                            <div class="layui-input-inline">
+                                <label class="layui-label">@ViewBag.Author</label>
+
+                            </div>
+                        </div>                    
+                    </div>
+                    <hr />
+                </div>       
+            
+                @*<div id="dataPart">
+                    <div class="layui-inline" style="width:100%;">
+                        <label class="layui-label" style="width:20%;text-align:center">终端运维情况统计：</label>
+                        <div class="layui-input-inline" style="width:80%;">
+                            <input class="layui-textarea" type="hidden" id="-ContentPart_1" name="-ContentPart_1" placeholder="" style="width:95%;" onclick="openDataEditView(this)" />
+                            <input class="layui-textarea" type="text" id="-ContentPart_1View" name="-ContentPart_1View" placeholder="" style="width:95%;" onclick="openDataEditView(this)" />
+                            <button type="button" style="width:10%;" onclick="getData('终端运维','-ContentPart_1');" class="layui-btn layui-btn-normal"><i class="layui-icon">&#xe705;</i>获取</button>
+                        </div>
+
+                    </div>
+                    <hr />
+                    <div class="layui-inline" style="width:100%;">
+                        <label class="layui-label" style="width:20%;text-align:center">机房巡检：</label>
+                        <div class="layui-input-inline" style="width:80%;">
+                        
+                            <input class="layui-textarea" type="hidden" id="-ContentPart_2" name="-ContentPart_2" placeholder="" style="width:95%;" onclick="openDataEditView(this)" />
+                            <input class="layui-textarea" type="text" id="-ContentPart_2View" name="-ContentPart_2View" placeholder="" style="width:95%;" onclick="openDataEditView(this)" />
+                            <button type="button" style="width:10%;" onclick="getData('机房巡检', '-ContentPart_2');" class="layui-btn layui-btn-normal"><i class="layui-icon">&#xe705;</i>获取</button>
+                        </div>
+
+                    </div>
+                    <hr />
+                    <div class="layui-inline" style="width:100%;">
+                        <label class="layui-label" style="width:20%;text-align:center">技术支持：</label>
+                        <div class="layui-input-inline" style="width:80%;">
+                     
+                            <input class="layui-textarea" type="hidden" id="-ContentPart_3" name="-ContentPart_3" placeholder="" style="width:95%;" onclick="openDataEditView(this)" />
+                            <input class="layui-textarea" type="text" id="-ContentPart_3View" name="-ContentPart_3View" placeholder="" style="width:95%;" onclick="openDataEditView(this)" />
+                            <button type="button" style="width:10%;" onclick="getData('技术支持', '-ContentPart_3');" class="layui-btn layui-btn-normal"><i class="layui-icon">&#xe705;</i>获取</button>
+                        </div>
+
+                    </div>
+                    <hr />
+                    <div class="layui-inline" style="width:100%;">
+                        <label class="layui-label" style="width:20%;text-align:center">其他临时工作：</label>
+                        <div class="layui-input-inline" style="width:80%;">
+                        
+                            <input class="layui-textarea" type="hidden" id="-ContentPart_4" name="-ContentPart_4" placeholder="" style="width:95%;" onclick="openDataEditView(this)" />
+                            <input class="layui-textarea" type="text" id="-ContentPart_4View" name="-ContentPart_4View" placeholder="" style="width:95%;" onclick="openDataEditView(this)" />
+                            <button type="button" style="width:10%;" onclick="getData('临时工作', '-ContentPart_4');" class="layui-btn layui-btn-normal"><i class="layui-icon">&#xe705;</i>获取</button>
+                        </div>
+
+                    </div>
+                    <hr />
+                    <div class="layui-inline" style="width:100%;">
+                        <label class="layui-label" style="width:20%;text-align:center">用户投诉与处理：</label>
+                        <div class="layui-input-inline" style="width:80%;">
+                      
+                            <input class="layui-textarea" type="hidden" id="-ContentPart_5" name="-ContentPart_5" placeholder="" style="width:95%;" onclick="openDataEditView(this)" />
+                            <input class="layui-textarea" type="text" id="-ContentPart_5View" name="-ContentPart_5View" placeholder="" style="width:95%;" onclick="openDataEditView(this)" />
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="layui-inline" style="width:100%;">
+                        <label class="layui-label" style="width:20%;text-align:center">服务级别协议达成情况：</label>
+                        <div class="layui-input-inline" style="width:80%;">
+                   
+                            <input class="layui-textarea" type="hidden" id="-ContentPart_6" name="-ContentPart_6" placeholder="" style="width:95%;" onclick="openDataEditView(this)" />
+                            <input class="layui-textarea" type="text" id="-ContentPart_6View" name="-ContentPart_6View" placeholder="" style="width:95%;" onclick="openDataEditView(this)" />
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="layui-inline" style="width:100%;">
+                        <label class="layui-label" style="width:20%;text-align:center">下周工作计划：</label>
+                        <div class="layui-input-inline" style="width:80%;">
+
+                            <input class="layui-textarea" type="hidden" id="-ContentPart_7" name="-ContentPart_7" placeholder="" style="width:95%;" onclick="openDataEditView(this)" />
+                            <input class="layui-textarea" type="text" id="-ContentPart_7View" name="-ContentPart_7View" placeholder="" style="width:95%;" onclick="openDataEditView(this)" />
+                        </div>
+                    </div>
+                    <hr />
+                </div>*@
+                <div id="PartTest"></div>
+                <a href="#" class="big-link" id="click1" data-reveal-id="myModal" hidden="hidden" data-animation="fade">jquery点我弹出</a>
+          
+
+                <div id="myModal" class="reveal-modal" style=" width:50%;">
+                    <textarea id="editor" placeholder="" autofocus></textarea>
+                    
+                    <div align="center">
+                        <button type="button" class="layui-btn layui-btn-radius layui-btn-warm" onclick="saveData();"><i class="layui-icon">&#xe605;</i>保存数据</button>
+                    </div>
+                    <a class="close-reveal-modal">&times;</a>
+                </div>
+             
+
+                <div align="center">
+                    <!--<button type="button" onclick="#" class="btn btn-default " style="text-align:center;">提交周报</button>-->
+                    <a href="ReportList.html" class="btn btn-default" style="display:none;">提交周报</a>
+                    <button type="submit" class="layui-btn layui-btn-warm"><i class="layui-icon">&#x1005;</i>提交周报</button>
+                </div>
+                <div style="height:500px"></div>
+            </div>
+
+        }
+    </div>
+  
+
+
+
+    <script>
+        var editor = new Simditor({
+            textarea: $('#editor'),
+            upload: false,
+            toolbar: [//'title',
+                     'bold',
+                     'italic',
+                     'underline',
+                     'strikethrough',
+                     'fontScale',
+                     'color',
+                     'ol',
+                     'ul',
+                     //'blockquote',
+                     //'code'       ,
+                     'table',
+                     //'link',
+                     //'image',
+                     'hr',
+                     'indent',
+                     'outdent',
+                     'alignment',
+            ]
+            //optional options
+        });
+
+    </script>
+
+
+</body>
+</html>

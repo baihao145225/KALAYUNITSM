@@ -1,0 +1,128 @@
+﻿@{
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+
+<link href="~/Scripts/ztree/css/metroStyle/metroStyle.css" rel="stylesheet" />
+<div class="col-md-2">
+    <div class="elight-panel container-panel">
+        <ul id="treeItem" class="ztree"></ul>
+    </div>
+</div>
+<div class="col-md-10">
+    <blockquote class="layui-elem-quote news_search">
+        <div class="layui-inline">
+            <form id="form" class="layui-form">
+                <div class="layui-input-inline">
+                    <input type="text" id="keyword" placeholder="请输入关键字" class="layui-input search_input">
+                </div>
+                <a class="layui-btn search_btn layui-btn-small" id="btnSearch">查询</a>
+            </form>
+        </div>
+        <div id="toolbar" class="layui-inline">
+            <div id="layui-btn-group" class="layui-inline toolsTable"></div>
+        </div>
+    </blockquote>
+
+    <div class="layui-form">
+        <table id="gridList" lay-filter="gridList"></table>
+    </div>
+</div>
+@section scripts {
+    <script src="~/Scripts/ztree/js/jquery.ztree.all.min.js"></script>
+    <script type="text/javascript">
+        var table = layui.table;
+        var form = layui.form;
+
+        var setting = {
+            data: {
+                simpleData: {
+                    enable: true
+                }
+            },
+            check: {
+                enable: false,
+                chkStyle: "checkbox",
+                chkDisabledInherit: false
+            },
+            async: {
+                enable: true,
+                url: "/Configure/CIGroup/GetListTree",
+                dataType: "text",
+                autoParam: ["id", "name"]
+            }, callback: {
+                onAsyncSuccess: function (event, treeId, treeNode, msg) {
+                    var node = zTreeObj.getNodesByFilter(function (node) {
+                        return node.level == 0
+                    }, true);
+                    zTreeObj.selectNode(node);
+                    zTreeObj.setting.callback.onClick(event, zTreeObj.setting.treeId, node);
+                },
+                onClick: function (event, treeId, treeNode) {
+                    initGrid();
+                }
+            }
+        };
+
+        var zTreeObj = $.fn.zTree.init($("#treeItem"), setting);
+
+        $('#btnSearch').click(initGrid);
+        $("#toolbar").authorizeButton(window.location.pathname);
+
+        function initGrid() {
+            var _curr = 0;
+            var _count = 0;
+            var _keyword = $("#keyword").val();
+
+            var treeObj = $.fn.zTree.getZTreeObj("treeItem");
+            var _parentId = "";
+            if (treeObj.getSelectedNodes()[0] != null) {
+                _parentId = treeObj.getSelectedNodes()[0].id;
+            }
+
+            table.render({
+                elem: '#gridList',
+                id: 'gridList',
+                url: '/Configure/CIGroup/GetJsonData',
+                cols: [[
+                 { checkbox: true, fixed: true }
+                 , { field: 'Name', title: '配置项', width: 180, sort: true }
+                 , { field: 'ParentName', title: '所属' }
+                 , { field: 'Description', title: '描述' }
+                 , { field: 'IsEnable', title: '状态', width: 80, templet: '#IsEnableTpl' }
+                ]],
+                curr: _curr,
+                where: {
+                    keyword: _keyword,
+                    parentId: _parentId
+                },
+                done: function (res, curr, count) {
+                    _curr = curr;
+                    _count = count;
+                },
+                request: {
+                    pageName: 'curr'
+            , limitName: 'nums'
+                }
+            });
+        }
+
+        function btn_add() {
+            $.buttonAdd({
+                title: "创建配置项组",
+                content: "/Configure/CIGroup/Form"
+            });
+        }
+        function btn_edit() {
+            $.buttonEdit({
+                title: "修改配置项组",
+                content: "/Configure/CIGroup/Form"
+            });
+        }
+        function btn_delete() {
+            $.buttonChk({
+                url: "/Configure/CIGroup/Delete"
+            });
+        }
+    </script>
+}
+

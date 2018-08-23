@@ -1,0 +1,131 @@
+﻿@{
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<blockquote class="layui-elem-quote news_search">
+    <div class="layui-inline">
+        <form id="form" class="layui-form">
+            @*<div class="layui-input-inline">
+                <input type="text" id="keyword" placeholder="请输入关键字" class="layui-input search_input">
+            </div>
+            <a class="layui-btn search_btn layui-btn-small" id="btnSearch">查询</a>*@
+        </form>
+    </div>
+    <div id="toolbar" class="layui-inline">
+        <div id="layui-btn-group" class="layui-inline toolsTable"></div>
+    </div>
+</blockquote>
+<div class="layui-form">
+    <table id="gridList" lay-filter="gridList"></table>
+</div>
+@section scripts {
+    <script type="text/javascript">
+        var table = layui.table;
+
+        initGrid();
+        $("#btnSearch").click(initGrid);
+        $("#toolbar").authorizeButton(window.location.pathname);
+
+        function initGrid() {
+            var _curr = 0;
+            var _count = 0;
+            var _keyword = $("#keyword").val();
+
+            table.render({
+                elem: '#gridList',
+                id: 'gridList',
+                url: '/WeeklyReports/WeeklyReports/GetJsonProjectData',
+                cols: [[
+                 { checkbox: true, fixed: true }
+                 , { field: 'WeekCount', title: '周数', sort: true, width: '10%' }
+                 , { field: 'ProjectName', title: '项目名称', width:'30%' }
+                 , { field: 'Author', title: '提交人', sort: true, width: '20%' }
+                 , { field: 'ReportWeekDateBegin', title: '起始时间', width: '20%', sort: true }
+                 , { field: 'ReportWeekDateEnd', title: '结束时间', width: '20%', sort: true }
+
+                ]],
+                curr: _curr,
+                where: { keyword: _keyword }
+            });
+        }
+        function btn_audit() {
+            var checkStatus = table.checkStatus('gridList')
+        , data = checkStatus.data;
+            //  alert(data[0].Id);
+            var index = layer.open({
+                type: 2,
+                title: data[0].Author + '的第' + data[0].WeekCount + '周周报',
+                area: ['60%', '60%'],
+                content: '/WeeklyReports/WeeklyReports/Audit?lId=' + data[0].Id  //这里content是一个URL，如果你不想让iframe出现滚动条，你还可以content: ['http://sentsin.com', 'no']
+
+            });
+        }
+        function btn_add() {
+        //    var checkStatus = table.checkStatus('gridList')
+        //, data = checkStatus.data;
+        //    //  alert(data[0].Id);
+            var index = layer.open({
+                type: 2,
+                title: '新建项目周报',
+                area: ['100%', '100%'],
+                content: '/WeeklyReports/WeeklyReports/CreateProjectReport'  //这里content是一个URL，如果你不想让iframe出现滚动条，你还可以content: ['http://sentsin.com', 'no']
+
+            });
+        }
+        function btn_edit() {
+            //$.buttonChk({
+            //    url: "/Manage/Position/Delete"
+            //});
+            var checkStatus = table.checkStatus('gridList')
+         , data = checkStatus.data;
+            //  alert(data[0].Id);
+            var index = layer.open({
+                type: 2,
+                title: data[0].Author + '的第' + data[0].WeekCount + '周周报',
+                area: ['100%', '100%'],
+                content: '/WeeklyReports/WeeklyReports/ReportEdit?lId=' + data[0].Id,
+            });
+        }
+        function btn_read() {
+            //$.buttonChk({
+            //    url: "/Manage/Position/Delete"
+            //});
+            var checkStatus = table.checkStatus('gridList')
+         , data = checkStatus.data;
+            //  alert(data[0].Id);
+          var index = layer.open({
+                type: 2,
+                title: data[0].Author + '的第'+data[0].WeekCount+'周周报',
+                area: ['100%', '100%'],
+                content: '/WeeklyReports/WeeklyReports/ReportInfo?lId='+data[0].Id+'&ProjectName='+data[0].ProjectName+'&WeekCount='+data[0].WeekCount+'&EmergencyLevel='+data[0].EmergencyLevel+'&Author='+data[0].Author+'&isSelf=1'  //这里content是一个URL，如果你不想让iframe出现滚动条，你还可以content: ['http://sentsin.com', 'no']
+            });
+        }
+        function btn_export() {
+            var checkStatus = table.checkStatus('gridList')
+           , data = checkStatus.data;
+            //  alert(data[0].Id);
+            var index = layer.open({
+                type: 2,
+                title: data[0].Author + '的第' + data[0].WeekCount + '周周报',
+                area: ['100%', '100%'],
+                content: '/WeeklyReports/WeeklyReports/ReportView?lId=' + data[0].Id,
+            });
+        }
+        function btn_chk() {
+            $.buttonOrder({
+                title: "工单流转",
+                width: "500px",
+                height: "500px",
+                content: "/Itsm/OrderChk/CheckInOrder"
+            });
+        }
+        function btn_allocate() {
+            $.buttonOrder({
+                title: "工单分派",
+                width: "500px",
+                height: "500px",
+                content: "/Itsm/OrderChk/AllocateOrder"
+            });
+        }
+    </script>
+}
+

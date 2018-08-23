@@ -1,0 +1,82 @@
+﻿@{
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<blockquote class="layui-elem-quote news_search">
+    <div class="layui-inline">
+        <form id="form" class="layui-form">
+            <div class="layui-input-inline">
+                <input type="text" id="keyword" placeholder="请输入关键字" class="layui-input search_input">
+            </div>
+            <div class="layui-input-inline">
+                <select lay-ignore name="Type" id="Type" lay-verify="required" class="select2"></select>
+            </div>
+            <a class="layui-btn search_btn layui-btn-small" id="btnSearch">查询</a>
+        </form>
+    </div>
+    <div id="toolbar" class="layui-inline">
+        <div id="layui-btn-group" class="layui-inline toolsTable"></div>
+    </div>
+</blockquote>
+<div class="layui-form">
+    <table id="gridList" lay-filter="gridList"></table>
+</div>
+@section scripts {
+    <script type="text/javascript">
+        var table = layui.table;
+
+        $("#Type").bindSelect({
+            url: "/Manage/ItemsDetail/GetItemByCode?itemCode=contract"
+        });
+        initGrid();
+        $("#btnSearch").click(initGrid);
+        $("#toolbar").authorizeButton(window.location.pathname);
+
+        function initGrid() {
+            var _curr = 0;
+            var _count = 0;
+            var _keyword = $("#keyword").val();
+
+            table.render({
+                elem: '#gridList',
+                id: 'gridList',
+                url: '/Business/Contract/GetJsonData',
+                cols: [[
+                 { checkbox: true, fixed: true }
+                 , { field: 'Name', title: '合同名称', width: 180, sort: true }
+                 , { field: 'CustomerName', title: '客户', sort: true }
+                 , { field: 'TypeName', title: '合同类型' }
+                 , { field: 'StartDate', title: '开始日期', width: 120 }
+                 , { field: 'EndDate', title: '结束日期', width: 120 }
+                 , { field: 'Expenses', title: '费用', templet: '#ExpensesTpl' }
+                 , { field: 'IsEnable', title: '状态', width: 80, templet: '#IsEnableTpl' }
+                ]],
+                curr: _curr,
+                where: { keyword: _keyword }
+            });
+        }
+
+        function btn_add() {
+            $.buttonAdd({
+                title: "创建合同",
+                content: "/Business/Contract/Form",
+            });
+        }
+        function btn_edit() {
+            $.buttonEdit({
+                title: "修改合同",
+                content: "/Business/Contract/Form"
+            });
+        }
+        function btn_delete() {
+            $.buttonChk({
+                url: "/Business/Contract/Delete"
+            });
+        }
+        function btn_export() {
+            $.buttonExport({
+                url: "/Business/Contract/ExportExcel"
+            });
+        }
+    </script>
+}
+

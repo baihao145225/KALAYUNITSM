@@ -1,0 +1,205 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+
+<link href="~/Scripts/ztree/css/metroStyle/metroStyle.css" rel="stylesheet" />
+<div class="col-md-3">
+    <div class="elight-panel container-panel">
+        <ul id="treeItem" class="ztree"></ul>
+    </div>
+</div>
+<div class="col-md-9">
+    <blockquote class="layui-elem-quote">
+        <div class="layui-inline">
+            <form id="form" class="layui-form">
+                <div class="layui-input-inline">
+                    <input type="text" id="keyword" placeholder="请输入关键字" class="layui-input search_input">
+                </div>
+                <a class="layui-btn search_btn layui-btn-small" id="btnSearch">查询</a>
+            </form>
+        </div>
+        <div id="toolbar" class="layui-inline">
+            <div id="layui-btn-group" class="layui-inline toolsTable"></div>
+        </div>
+    </blockquote>
+    <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+        <legend><span class="Catalog"></span></legend>
+    </fieldset>
+
+    <div class="layui-tab">
+        <ul class="layui-tab-title">
+            <li class="layui-this">属性</li>
+            <li>子目录</li>
+            <li>客户合同</li>
+            <li>历史</li>
+        </ul>
+        <div class="layui-tab-content" id="formtab">
+            <div class="layui-tab-item layui-show">
+                <table class="layui-table">
+                    <tbody>
+                        <tr>
+                            <td style="width:15%">名称</td>
+                            <td class="Catalog"></td>
+                        </tr>
+                        <tr>
+                            <td>描述</td>
+                            <td class="Description"></td>
+                        </tr>
+                        <tr>
+                            <td>服务形式</td>
+                            <td class="type"></td>
+                        </tr>
+                        <tr>
+                            <td>服务时间</td>
+                            <td class="Time"></td>
+                        </tr>
+                        <tr>
+                            <td>服务频率</td>
+                            <td class="Frequency"></td>
+                        </tr>
+                        <tr>
+                            <td>服务指标</td>
+                            <td class="Level"></td>
+                        </tr>
+                        <tr>
+                            <td>交付成果</td>
+                            <td class="Delivery"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="layui-tab-item">
+                <div class="layui-form">
+                    <table id="gridList" lay-filter="gridList"></table>
+                </div>
+            </div>
+            <div class="layui-tab-item">暂无</div>
+            <div class="layui-tab-item">暂无</div>
+        </div>
+    </div>
+    <!--<div class="btn-group">
+        <a class="btn btn-primary" href="#"><i class="icon-user icon-white"></i> User</a>
+        <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="#"><i class="icon-pencil"></i> Edit</a></li>
+            <li><a href="#"><i class="icon-trash"></i> Delete</a></li>
+            <li><a href="#"><i class="icon-ban-circle"></i> Ban</a></li>
+            <li class="divider"></li>
+            <li><a href="#"><i class="i"></i> Make admin</a></li>
+        </ul>
+    </div>-->
+</div>
+@section scripts {
+    <script src="~/Scripts/ztree/js/jquery.ztree.all.min.js"></script>
+    <script type="text/javascript">
+        var table = layui.table;
+
+        var setting = {
+            data: {
+                simpleData: {
+                    enable: true
+                }
+            },
+            check: {
+                enable: false,
+                chkStyle: "checkbox",
+                chkDisabledInherit: false
+            },
+            async: {
+                enable: true,
+                url: "/Configure/ServiceCatalog/GetListTree",
+                dataType: "text",
+                autoParam: ["id", "name"]
+            }, callback: {
+                onAsyncSuccess: function (event, treeId, treeNode, msg) {
+                    var node = zTreeObj.getNodesByFilter(function (node) {
+                        return node.level == 0
+                    }, true);
+                    zTreeObj.selectNode(node);
+                    zTreeObj.setting.callback.onClick(event, zTreeObj.setting.treeId, node);
+                },
+                onClick: function (event, treeId, treeNode) {
+                    initGrid();
+                }
+            }
+        };
+
+        var zTreeObj = $.fn.zTree.init($("#treeItem"), setting);
+
+
+        $("#btnSearch").click(initGrid);
+        $("#toolbar").authorizeButton(window.location.pathname);
+
+        function initGrid() {
+            var _curr = 0;
+            var _count = 0;
+            var _keyword = $("#keyword").val();
+            var _parentId = "0";
+
+            var treeObj = $.fn.zTree.getZTreeObj("treeItem");
+            if (treeObj.getSelectedNodes()[0] != null) {
+                _parentId = treeObj.getSelectedNodes()[0].id;
+            }
+            $.ajax({
+                url: "/Configure/ServiceCatalog/Get?id=" + _parentId,
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    if (data.name != "") {
+                        $(".Catalog").html(data.Name + " " + data.EnCode);
+                        $(".Description").html(data.Description);
+                        $(".Frequency").html(data.Frequency);
+                        $(".Level").html(data.Level);
+                        $(".Time").html(data.Time);
+                        $(".type").html(data.TypeName); 
+                        $(".Delivery").html(data.Delivery);
+                    }
+                }
+            });
+            table.render({
+                elem: '#gridList',
+                id: 'gridList',
+                url: '/Configure/ServiceCatalog/GetJsonData',
+                cols: [[
+                 { checkbox: true, fixed: true }
+                 , { field: 'EnCode', title: '编码', width: 100, sort: true }
+                 , { field: 'Name', title: '子目录', width: 220 }
+                 , { field: 'Description', title: '说明' }
+                ]],
+                page: false,
+                curr: _curr,
+                where: {
+                    keyword: _keyword,
+                    parentId: _parentId
+                },
+                done: function (res, curr, count) {
+                    _curr = curr;
+                    _count = count;
+                    if (res.data.length == 0) {
+                        $(".layui-table-view").hide();
+                    }
+                }
+            });
+        }
+
+        function btn_add() {
+            $.buttonAdd({
+                title: "创建服务目录",
+                content: "/Configure/ServiceCatalog/Form"
+            });
+        }
+        function btn_edit() {
+            $.buttonEdit({
+                title: "修改服务目录",
+                content: "/Configure/ServiceCatalog/Form"
+            });
+        }
+        function btn_delete() {
+            $.buttonChk({
+                url: "/Configure/ServiceCatalog/Delete"
+            });
+        }
+    </script>
+}
+

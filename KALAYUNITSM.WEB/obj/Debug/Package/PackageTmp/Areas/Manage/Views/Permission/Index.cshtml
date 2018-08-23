@@ -1,0 +1,84 @@
+﻿@{
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<blockquote class="layui-elem-quote news_search">
+    <div class="layui-inline">
+        <form id="form" class="layui-form">
+            <div class="layui-input-inline">
+                <input type="text" id="keyword" placeholder="请输入关键字" class="layui-input search_input">
+            </div>
+            <div class="layui-input-inline">
+                <select lay-ignore name="Type" id="Type" lay-verify="required" class="select2"></select>
+            </div>
+            <a class="layui-btn search_btn layui-btn-small" id="btnSearch">查询</a>
+        </form>
+    </div>
+    <div id="toolbar" class="layui-inline">
+        <div id="layui-btn-group" class="layui-inline toolsTable"></div>
+    </div>
+</blockquote>
+<div class="layui-form">
+    <table id="gridList" lay-filter="gridList"></table>
+</div>
+@section scripts {
+    <script type="text/javascript">
+        var table = layui.table;
+
+
+        $("#Type").bindSelect({
+            url: "/Manage/ItemsDetail/GetItemByCode?itemCode=permission"
+        });
+        initGrid();
+        $("#btnSearch").click(initGrid);
+        $("#toolbar").authorizeButton(window.location.pathname);
+
+        function initGrid() {
+            var _curr = 0;
+            var _count = 0;
+            var _keyword = $("#keyword").val();
+
+            table.render({
+                elem: '#gridList',
+                id: 'gridList',
+                url: '/Manage/Permission/GetJsonData',
+                cols: [[
+                 { checkbox: true, fixed: true }
+                 , { field: 'Name', title: '模块名称', sort: true }
+                 , { field: 'EnCode', title: '编码', width: 160 }
+                 , { field: 'Icon', title: 'Icon', width: 60, templet: "#IconTpl" }
+                 , { field: 'Type', title: 'Type', templet: "#PTypeTpl" }
+                 , { field: 'JsEvent', title: '事件', }
+                 , { field: 'Url', title: '地址', width: 260 }
+                 , { field: 'IsEnable', title: '状态', width: 80, templet: '#IsEnableTpl' }
+                 , { field: 'SortCode', title: '排序', sort: true }
+                ]],
+                curr: _curr,
+                where: { keyword: _keyword }
+            });
+        }
+
+        function btn_add() {
+            $.buttonAdd({
+                title: "创建权限",
+                content: "/Manage/Permission/Form",
+            });
+        }
+        function btn_edit() {
+            $.buttonEdit({
+                title: "修改权限",
+                content: "/Manage/Permission/Form"
+            });
+        }
+        function btn_delete() {
+            $.buttonChk({
+                url: "/Manage/Permission/Delete"
+            });
+        }
+        function btn_export() {
+            $.buttonExport({
+                url: "/Manage/Permission/ExportExcel"
+            });
+        }
+    </script>
+}
+

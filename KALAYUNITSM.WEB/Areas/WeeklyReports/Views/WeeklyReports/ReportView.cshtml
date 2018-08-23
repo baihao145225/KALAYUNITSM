@@ -1,0 +1,230 @@
+﻿@{
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+@model KALAYUNITSM.WEB.Areas.WeeklyReports.Controllers.ReportViewList
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>ReportView</title>
+    <script>
+        $(document).ready(function () {
+            var hCode = $("#reportDataHtml").prop('outerHTML');
+            $("#htmlCodeInput").val(hCode);
+            //$.ajax({
+            //    type: "Post",
+            //    url: "/WeeklyReports/WeeklyReports/ReportExport",
+            //    data: { htmlCode: hCode },
+            //    success: function (msg) {
+
+            //    }
+            //});
+         
+        });
+        function ExportWord()
+        {
+            var hCode = $("#reportDataHtml").prop('outerHTML');
+            $.ajax({
+                type: "Post",
+                url: "/WeeklyReports/WeeklyReports/ReportExport",
+                data: {htmlCode:hCode },
+                success: function (msg) {
+
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+    @*<a class="btn btn-default" href="@Url.Action("Download", "WeeklyReports")">报告下载</a>*@
+    @using (Html.BeginForm("DownLoadPost", null, FormMethod.Post))
+{
+        <input type="hidden" id="htmlCodeInput" name="htmlCodeInput" />
+    <div align="center">
+        <!--<button type="button" onclick="#" class="btn btn-default " style="text-align:center;">提交周报</button>-->
+        @*<a href="ReportList.html" class="btn btn-default" style="display:none;">提交周报</a>*@
+        <button type="submit" class="btn btn-default">报告下载</button>
+    </div>
+  
+}
+    <table id="reportDataHtml" border="1" cellpadding="1" cellspacing="1" class="table-striped" style="height: 100%; width: 100%;font-family:宋体">
+        <tbody>
+            <tr>
+                <td colspan="7" style="width: 14%; height: 40px; text-align: center; vertical-align: middle;">
+                    <h2>个人运维工作周报</h2>
+                </td>
+            </tr>
+            <tr>
+                <td style="width: 14%;">项目名称</td>
+                <td colspan="3" rowspan="1" style="width: 14%;">@Model.reportInfo.ProjectName</td>
+                <td style="width: 14%;">汇报日期</td>
+                <td colspan="2" rowspan="1" style="width: 14%;">@Model.reportInfo.ReportWeekDateBegin.Month.@Model.reportInfo.ReportWeekDateBegin.Day-@Model.reportInfo.ReportWeekDateEnd.Month.@Model.reportInfo.ReportWeekDateEnd.Day</td>
+            </tr>
+            <tr>
+                <td style="width: 14%;">汇报人</td>
+                <td colspan="3" rowspan="1" style="width: 14%;">@Model.reportInfo.Author</td>
+                <td style="width: 14%;">紧急度</td>
+                <td colspan="2" rowspan="1" style="width: 14%;">
+
+                    @{
+                        string Level = "";
+                        string el = Model.reportInfo.EmergencyLevel;
+                        switch (el)
+                        {
+                            default:
+                                break;
+                            case "1":
+                                Level = "低";
+                                break;
+                            case "2":
+                                Level = "中";
+                                break;
+                            case "3":
+                                Level = "高";
+                                break;
+                        }
+                    }
+                    @Level
+                </td>
+            </tr>
+            <tr>
+                <td colspan="7" style="width: 14%; text-align: center; height: 40px;">
+                    <h3><strong>本周工作任务及执行情况</strong></h3>
+                </td>
+            </tr>
+            <tr>
+                <td style="width: 14%; text-align: center;">序号</td>
+                <td style="width: 14%; text-align: center;">工作项目</td>
+                <td style="width: 14%; text-align: center;">工作内容</td>
+                <td style="width: 14%; text-align: center;">责任人</td>
+                <td style="width: 14%; text-align: center;">日期</td>
+                <td style="width: 14%; text-align: center;">完成情况</td>
+                <td style="width: 14%; text-align: center;">状态</td>
+            </tr>
+            
+                @{
+                    if (Model.reportDataList != null && Model.reportDataList.Count > 0)
+                    {
+                        foreach (var item in Model.reportDataList)
+                        {
+                            if (item.ContentType == 1)
+                            {
+                                <tr>
+                                    <td style="width: 14%; text-align: center;">@item.ContentNumber</td>
+                                    <td style="width: 14%; text-align: center;">@item.ProjectName</td>
+                                    <td style="width: 14%; ">@Html.Raw(item.Content)</td>
+                                    <td style="width: 14%; text-align: center;">@item.LiablePerson</td>
+                                    <td style="width: 14%; text-align: center;">@item.StartTime.Value.ToShortDateString()-@item.EndTime.Value.ToShortDateString()</td>
+                                    <td style="width: 14%; ">@Html.Raw(item.CompleteStatus)</td>
+
+                                   @{ string workTypeTemp = "";
+                                    switch (item.WorkType)
+                                    {
+                                    default:
+                                    break;
+                                    case "A":
+                                    workTypeTemp = "已完成";
+                                    break;
+                                    case "B":
+                                    workTypeTemp = "进展中";
+                                    break;
+                                    case "C":
+                                    workTypeTemp = "未开始";
+                                    break;
+                                    case "D":
+                                    workTypeTemp = "延期已完成";
+                                    break;
+                                    }
+                                    }
+                                    <td style="width: 14%; text-align: center;">@workTypeTemp</td>
+
+                                </tr>
+                            }
+                        }
+                    }
+
+                }
+
+
+            <tr>
+                <td colspan="7" style="width: 14%; text-align: center; height: 40px;">
+                    <h3>下周工作计划</h3>
+                </td>
+            </tr>
+            <tr>
+                <td style="width: 14%; text-align: center;">序号</td>
+                <td style="width: 14%; text-align: center;">工作项目</td>
+                <td style="width: 14%; text-align: center;">工作内容</td>
+                <td style="width: 14%; text-align: center;">责任人</td>
+                <td style="width: 14%; text-align: center;">日期</td>
+                <td colspan="2" rowspan="1" style="width: 14%; text-align: center;">备注</td>
+            </tr>
+            @{
+                if (Model.reportDataList != null && Model.reportDataList.Count > 0)
+                {
+                    foreach (var item in Model.reportDataList)
+                    {
+                        if (item.ContentType == 2)
+                        {
+                            <tr>
+                                <td style="width: 14%; text-align: center;">@item.ContentNumber</td>
+                                <td style="width: 14%; text-align: center;">@item.ProjectName</td>
+                                <td style="width: 14%; ">@Html.Raw(item.Content)</td>
+                                <td style="width: 14%; text-align: center;">@item.LiablePerson</td>
+                                <td style="width: 14%; text-align: center;">@item.StartTime.Value.ToShortDateString()-@item.EndTime.Value.ToShortDateString()</td>
+                                <td colspan="2" rowspan="1" style="width: 14%; ">@Html.Raw(item.Remark)</td>
+                            </tr>
+                        }
+                    }
+                }
+            }
+          
+            <tr>
+                <td colspan="7" style="width: 14%; text-align: center; height: 40px;">
+                    <h3>发现问题、建议及解决计划</h3>
+                </td>
+            </tr>
+            <tr>
+                <td style="width: 14%; text-align: center;">序号</td>
+                <td colspan="2" rowspan="1" style="width: 14%; text-align: center;">问题</td>
+                <td colspan="2" rowspan="1" style="width: 14%; text-align: center;">原因</td>
+                <td colspan="2" rowspan="1" style="width: 14%; text-align: center;">解决方案</td>
+            </tr>
+            @{
+                if (Model.reportDataList != null && Model.reportDataList.Count > 0)
+                {
+                    foreach (var item in Model.reportDataList)
+                    {
+                        if (item.ContentType == 3)
+                        {
+                            <tr>
+                                <td style="width: 14%; text-align: center;">@item.ContentNumber</td>
+                                <td colspan="2" rowspan="1" style="width: 14%; ">@Html.Raw(item.Problem)</td>
+                                <td colspan="2" rowspan="1" style="width: 14%;">@Html.Raw(item.Result)</td>
+                                <td colspan="2" rowspan="1" style="width: 14%; ">@Html.Raw(item.Solution)</td>
+                            </tr>
+                        }
+                    }
+                }
+            }
+          
+            <tr>
+                <td colspan="7" style="width: 14%; text-align: center; height: 40px;">
+                    <h3>上级审阅意见</h3>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="7" style="width: 14%; text-align: center; height: 80px;">@Html.Raw(Model.reportInfo.LeaderOpinion)</td>
+            </tr>
+        </tbody>
+    </table>
+
+   
+    @*<div align="center">
+      
+        <a href="ReportList.html" class="btn btn-default" style="display:none;">提交周报</a>
+        <button type="button" class="btn btn-default" onclick="ExportWord();">导出报告</button>
+    </div>*@
+</body>
+</html>

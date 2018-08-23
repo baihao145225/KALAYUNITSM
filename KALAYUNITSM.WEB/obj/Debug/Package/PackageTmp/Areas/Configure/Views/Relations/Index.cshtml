@@ -1,0 +1,73 @@
+﻿@{
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<blockquote class="layui-elem-quote news_search">
+    <div id="toolbar" class="layui-inline">
+        <div class="layui-inline">
+            <div class="layui-input-inline">
+                <input type="text" id="keyword" placeholder="请输入关键字" class="layui-input search_input">
+            </div>
+            <a class="layui-btn search_btn layui-btn-small" id="btnSearch">查询</a>
+        </div>
+        <div id="layui-btn-group" class="layui-inline toolsTable"></div>
+    </div>
+</blockquote>
+<div class="layui-form">
+    <table class="layui-table" id="gridList" lay-filter="gridList"></table>
+</div>
+@section scripts {
+    <script type="text/javascript">
+        var table = layui.table;
+        initGrid();
+        $("#btnSearch").click(initGrid);
+        $("#toolbar").authorizeButton(window.location.pathname);
+
+        function initGrid() {
+            var _curr = 0;
+            var _count = 0;
+            var _keyword = $("#keyword").val();
+
+            table.render({
+                elem: '#gridList'
+                , id: 'gridList'
+                , url: '/Configure/Relations/GetJsonData'
+                    , cols: [[
+                     { checkbox: true, fixed: false }
+                     , { field: 'Name', title: '关联关系', width: 220, sort: true }
+                     , { field: 'ForwardText', title: '正向关系' }
+                     , { field: 'ReverseText', title: '反向关系' }
+                     , { field: 'IsEnable', title: '状态', width: 80, templet: '#IsEnableTpl' }
+                    ]],
+                curr: _curr,
+                where: { keyword: _keyword },
+                done: function (res, curr, count) {
+                    _curr = curr;
+                    _count = count;
+                },
+                request: {
+                    pageName: 'curr'
+            , limitName: 'nums'
+                }
+            });
+        }
+
+        function btn_add() {
+            $.buttonAdd({
+                title: "创建配置关系",
+                content: "/Configure/Relations/Form"
+            });
+        }
+        function btn_edit() {
+            $.buttonEdit({
+                title: "修改配置关系",
+                content: "/Configure/Relations/Form"
+            });
+        }
+        function btn_delete() {
+            $.buttonChk({
+                url: "/Configure/Relations/Delete"
+            });
+        }
+    </script>
+}
+

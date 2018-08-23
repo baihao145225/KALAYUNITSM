@@ -1,0 +1,100 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{943880B1-59E0-4667-8E54-3B82383EA86E}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>KALAYUNITSM.IREPOSITORY</RootNamespace>
+    <AssemblyName>KALAYUNITSM.IREPOSITORY</AssemblyName>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="SqlSugar, Version=4.5.9.9, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\sqlSugar.4.5.9.9\lib\SqlSugar.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="IBaseRepository.cs" />
+    <Compile Include="ICIRelationsRepository.cs" />
+    <Compile Include="IOrderChkRepository.cs" />
+    <Compile Include="IOrdersTempleteRepository.cs" />
+    <Compile Include="IOrdersRepository.cs" />
+    <Compile Include="IFAQsCategoryRepository.cs" />
+    <Compile Include="IFAQsRepository.cs" />
+    <Compile Include="IPositionRepository.cs" />
+    <Compile Include="IRelationsRepository.cs" />
+    <Compile Include="ICIRepository.cs" />
+    <Compile Include="ICIGroupRepository.cs" />
+    <Compile Include="IContactsRepository.cs" />
+    <Compile Include="ICustomerRepository.cs" />
+    <Compile Include="IContractRepository.cs" />
+    <Compile Include="ILocaltionRepository.cs" />
+    <Compile Include="IReportsDataRepository.cs" />
+    <Compile Include="ISLARepository.cs" />
+    <Compile Include="ISLTsRepository.cs" />
+    <Compile Include="IOrganizationRepository.cs" />
+    <Compile Include="ILogRepository.cs" />
+    <Compile Include="IServiceCatalogRepository.cs" />
+    <Compile Include="IItemsDetailRepository.cs" />
+    <Compile Include="IItemRepository.cs" />
+    <Compile Include="IPermissionRepository.cs" />
+    <Compile Include="IRoleAuthorizeRepository.cs" />
+    <Compile Include="IRoleRepository.cs" />
+    <Compile Include="IUserPositionRelationRepository.cs" />
+    <Compile Include="IUserRepository.cs" />
+    <Compile Include="ISLASLTsRepository.cs" />
+    <Compile Include="IUserRoleRelationRepository.cs" />
+    <Compile Include="IWeeklyReportsRepository.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\KALAYUNITSM.DATA\KALAYUNITSM.DATA.csproj">
+      <Project>{404d0842-f183-428d-93e9-2010193ecf22}</Project>
+      <Name>KALAYUNITSM.DATA</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\KALAYUNITSM.ENTITY\KALAYUNITSM.ENTITY.csproj">
+      <Project>{7043c417-ccd5-4ee8-b65e-4f70b0456bbe}</Project>
+      <Name>KALAYUNITSM.ENTITY</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,0 +1,90 @@
+﻿@{
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+
+<blockquote class="layui-elem-quote news_search">
+    <div id="toolbar" class="layui-inline">
+        <div class="layui-inline">
+            <div class="layui-input-inline">
+                <input type="text" id="keyword" placeholder="请输入关键字" class="layui-input search_input">
+            </div>
+            <a class="layui-btn search_btn layui-btn-small" id="btnSearch">查询</a>
+        </div>
+        <div id="layui-btn-group" class="layui-inline toolsTable"></div>
+    </div>
+</blockquote>
+<div class="layui-form">
+    <table class="layui-table" id="gridList" lay-filter="gridList"></table>
+</div>
+@section scripts {
+    <script type="text/javascript">
+        var table = layui.table;
+
+        initGrid();
+        $("#btnSearch").click(initGrid);
+        $("#toolbar").authorizeButton(window.location.pathname);
+
+        function initGrid() {
+            var _curr = 0;
+            var _count = 0;
+            var _keyword = $("#keyword").val();
+
+            layui.use(['laypage', 'layer', 'table'], function () {
+                var laypage = layui.laypage
+                    , layer = layui.layer, table = layui.table;
+                table.render({
+                    elem: '#gridList'
+                    , id: 'gridList'
+                    , url: '/Manage/User/GetJsonData'
+                    , cols: [[
+                     { checkbox: true, fixed: false }
+                     , { field: 'Account', title: '用户', width: 90, sort: true }
+                     , { field: 'RealName', title: '姓名', width: 100, sort: true }
+                     , { field: 'OrganizationName', title: '部门', width: 100, sort: true }
+                     , { field: 'PositionName', title: '岗位', width: 100, sort: true }
+                     , { field: 'EmployeeId', title: '工号' }
+                     , { field: 'Email', title: '邮箱', }
+                     , { field: 'TelPhone', title: '联系电话', sort: true }
+                     , { field: 'MobilePhone', title: '手机' }
+                     , { field: 'ExpirationDate', title: '有效期', width: 110, templet: "#ExpirationDateTpl" }
+                     , { field: 'LastLoginTime', title: '上次登录', width: 180 }
+                    ]],
+                    curr: _curr,
+                    where: { keyword: _keyword },
+                    done: function (res, curr, count) {
+                        _curr = curr;
+                        _count = count;
+                    },
+                    request: {
+                        pageName: 'curr'
+        , limitName: 'nums'
+                    }
+                });
+            });
+        }
+
+        function btn_add() {
+            $.buttonAdd({
+                title: "创建用户",
+                content: "/Manage/User/Form"
+            });
+        }
+        function btn_edit() {
+            $.buttonEdit({
+                title: "修改用户",
+                content: "/Manage/User/Form"
+            });
+        }
+        function btn_delete() {
+            $.buttonChk({
+                url: "/Manage/User/Delete"
+            });
+        }
+        function btn_lock() {
+            $.buttonChk({
+                url: "/Manage/User/Lock"
+            });
+        }
+    </script>
+}
+

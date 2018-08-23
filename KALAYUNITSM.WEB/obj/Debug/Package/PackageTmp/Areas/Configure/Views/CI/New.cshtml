@@ -1,0 +1,33 @@
+﻿@{
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<blockquote class="layui-elem-quote news_search">
+    <div class="layui-inline">
+        <form id="form" class="layui-form">
+            选择要创建的CI的类别：<div class="layui-input-inline">
+                <select lay-ignore name="CIGroupId" id="CIGroupId" lay-verify="required" class="select2"></select>
+            </div>
+            <a class="layui-btn search_btn layui-btn-small" id="btnSearch">开始创建</a>
+        </form>
+    </div>
+    <div id="toolbar" class="layui-inline">
+        <div id="layui-btn-group" class="layui-inline toolsTable"></div>
+    </div>
+</blockquote>
+
+
+@section scripts {
+    <script type="text/javascript">
+        $("#CIGroupId").bindSelect({
+            url: "/Configure/CIGroup/GetParentUrl"
+        });
+        $("#btnSearch").click(btn_add);
+        function btn_add() {
+            $.buttonAdd({
+                title: "创建-" + $("#CIGroupId").find("option:selected").text(),
+                content: "/Configure/CI/Form" + "?ciGroupId=" + $("#CIGroupId").find("option:selected").val(),
+            });
+        }
+    </script>
+}
+

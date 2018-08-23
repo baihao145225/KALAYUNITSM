@@ -1,0 +1,205 @@
+﻿@{
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<link rel="stylesheet" type="text/css" href="~/Scripts/strongpassword/progression.css" />
+<link rel="stylesheet" type="text/css" href="~/Scripts/select2/css/select2.css" media="all" />
+<script type="text/javascript" src="~/Scripts/strongpassword/strength.js"></script>
+<div class="content">
+    <form id="form" class="layui-form">
+        @Html.AntiForgeryToken()
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label label-required">账号</label>
+                <div class="layui-input-inline">
+                    <input type="hidden" name="Id" />
+                    <input type="text" name="Account" id="Account" lay-verify="username" placeholder="请输入账号" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item" id="pwd">
+            <div class="layui-inline">
+                <label class="layui-form-label label-required">密码</label>
+                <div class="layui-input-inline">
+                    <input type="hidden" name="Id" />
+                    <input type="password" name="Password" id="Password" lay-verify="pass" placeholder="请输入密码" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label label-required">姓名</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="RealName" id="RealName" lay-verify="required" placeholder="请输入姓名" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label label-required">性别</label>
+                <div class="layui-input-inline">
+                    <input type="radio" name="Gender" value="true" title="男" checked />
+                    <input type="radio" name="Gender" value="false" title="女" />
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label label-required">启用</label>
+                <div class="layui-input-inline">
+                    <input type="radio" name="IsEnable" value="true" title="是" checked />
+                    <input type="radio" name="IsEnable" value="false" title="否" />
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label label-required">职位</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="Position" placeholder="请输入职位" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label label-required">所属机构</label>
+                <div class="layui-input-inline">
+                    <select lay-ignore name="OrganizationId" id="OrganizationId" lay-verify="required" class="select2"></select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label label-required">联系地址</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="Address" placeholder="请输入地址" autocomplete="off" class="layui-input width300">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label label-required">邮箱</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="Email" lay-verify="email" placeholder="请输入邮箱" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label label-required">移动电话</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="MobilePhone" lay-verify="phone" placeholder="请输入手机" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label label-required">联系方式</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="TelPhone" lay-verify="required" placeholder="请输入联系方式" autocomplete="off" class="layui-input width300">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label label-required">工号</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="EmployeeId" placeholder="请输入工号" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label label-required">有效期</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="ExpirationDate" id="ExpirationDate" lay-verify="required" placeholder="请选择有效期" autocomplete="off" maxlength="10" class="layui-input width100">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label label-required">排序码</label>
+                <div class="layui-input-inline">
+                    <input type="number" name="SortCode" lay-verify="number" placeholder="请输入排序" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">角色属性</label>
+                <div class="layui-input-inline">
+                    <select lay-ignore name="RoleId" class="select2 width500" id="RoleId" multiple="multiple"></select>
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">岗位属性</label>
+                <div class="layui-input-inline">
+                    @*<select lay-ignore name="PositionId" class="select2 width500" id="PositionId" ></select>*@
+                    <select lay-ignore name="PositionId" id="PositionId" lay-verify="required" class="select2 width300"></select>
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item" style="display: none">
+            <div class="layui-input-block">
+                <button id="btnSubmit" class="layui-btn" lay-submit lay-filter="add">提交</button>
+            </div>
+        </div>
+    </form>
+</div>
+@section scripts {
+    <script type="text/javascript" src="~/Scripts/select2/js/select2.min.js"></script>
+    <script>
+
+        $("#OrganizationId").bindSelect({
+            url: "/Manage/Organization/GetParent"
+        });
+        $("#RoleId").bindSelect({
+            url: "/Manage/Role/GetListTreeSelect"
+        });
+
+        $("#PositionId").bindSelect({
+            url: "/Manage/Position/GetParent"
+        });
+
+        $("#ExpirationDate").jdate();
+
+        $('#Account').blur(function () {
+            var userName = $('#Account').val();
+            if (userName && userName.length > 0) {
+                $.formSubmit({
+                    url: '/Manage/User/CheckAccount',
+                    data: { account: userName },
+                    close: false
+                });
+            }
+            return false;
+        });
+
+        layui.use(['form', 'layer'], function () {
+            var form = layui.form;
+            var layer = layui.layer;
+
+            var primaryKey = $.getQueryString("primaryKey");
+            if (primaryKey) {
+                $("#Password").attr("title", "edit");
+                $("#pwd").hide();
+                $("#Account").attr("disabled", "true").attr("style", "background:#dadada");
+                $.ajax({
+                    url: "/Manage/User/GetForm",
+                    data: { primaryKey: primaryKey },
+                    type: "post",
+                    dataType: "json",
+                    async: false,
+                    success: function (data) {
+                        $("#form").formSerialize(data);
+                    }
+                });
+            } else {
+                $('#Password').strength({
+                    strengthClass: 'strength',
+                    strengthMeterClass: 'strength_meter',
+                    strengthButtonClass: 'button_strength'
+                });
+            }
+
+            form.render();
+
+            form.on('submit(add)', function (data) {
+                data.field.roleIds = $("#RoleId").val().join();
+                data.field.positionIds = $("#PositionId").val();
+                $.formSubmit({
+                    url: "/Manage/User/SaveForm",
+                    data: data.field
+                });
+                return false;
+            });
+        });
+
+    </script>
+}

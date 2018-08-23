@@ -1,0 +1,74 @@
+.divBackgroundImage {
+    background: url(../Images/skin.png);
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    right: 0;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: -1;
+    opacity: 0.75;
+}
+
+.loginbox {
+    position: absolute;
+    left: 50%;
+    top: 40%;
+    margin: -150px 0 0 -150px;
+    z-index: 999;
+}
+
+.login {
+    height: 340px;
+    max-width: 400px;
+    padding: 15px 40px;
+    background-color: #23262E;
+    border-radius: 4px;
+    width:90%;
+}
+
+.login_footer {
+    height: 40px;
+    width: 360px;
+    padding: 20px;
+    text-align: center;
+    color: #fff;
+}
+
+.login h1 {
+    text-align: center;
+    color: #fff;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.form_code {
+    position: relative;
+}
+
+    .form_code .code {
+        position: absolute;
+        right: 0;
+        top: 0px;
+        cursor: pointer;
+    }
+
+.login_btn {
+    width: 100%;
+    font-size: 18px;
+}
+
+    .login_btn span {
+        color: #fff;
+    }
+
+#login_tips {
+    padding: 15px;
+    font-size: 14px;
+    color: #fff;
+    font-weight: 500;
+}

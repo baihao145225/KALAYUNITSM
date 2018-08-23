@@ -1,0 +1,672 @@
+﻿@{
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+@model KALAYUNITSM.WEB.Areas.WeeklyReports.Controllers.ReportViewList
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>ReportView</title>
+    <script>
+        $(document).ready(function () {
+            var hCode = $("#reportDataHtml").prop('outerHTML');
+            $("#htmlCodeInput").val(hCode);
+            //$.ajax({
+            //    type: "Post",
+            //    url: "/WeeklyReports/WeeklyReports/ReportExport",
+            //    data: { htmlCode: hCode },
+            //    success: function (msg) {
+
+            //    }
+            //});
+
+        });
+        function ExportWord()
+        {
+            var hCode = $("#reportDataHtml").prop('outerHTML');
+            $.ajax({
+                type: "Post",
+                url: "/WeeklyReports/WeeklyReports/ReportExport",
+                data: {htmlCode:hCode },
+                success: function (msg) {
+
+                }
+            });
+        }
+    </script>
+</head>
+<body >
+    @*<a class="btn btn-default" href="@Url.Action("Download", "WeeklyReports")">报告下载</a>*@
+    @using (Html.BeginForm("DownLoadPost", null, FormMethod.Post))
+    {
+        <input type="hidden" id="lId"name="lId"  value="@Model.reportInfo.Id"/>
+        <input type="hidden" id="htmlCodeInput" name="htmlCodeInput" />
+        <div align="center">
+            <!--<button type="button" onclick="#" class="btn btn-default " style="text-align:center;">提交周报</button>-->
+            @*<a href="ReportList.html" class="btn btn-default" style="display:none;">提交周报</a>*@
+            <button type="submit" class="layui-btn layui-btn-warm"><i class="layui-icon">&#xe601;</i>报告下载</button>
+        </div>
+  
+
+    }
+    <table id="reportDataHtml" border="1" cellpadding="1" cellspacing="1" class="table-striped" style="height: 100%; width: 100%;font-family:宋体">
+     
+        <tbody style="border:1px solid black;">
+            <tr style="border:none;">
+                <td colspan="7" style="border:none;  height: 30px; font-weight:bold;font-size:25px; text-align: center; vertical-align: middle;">
+                    运维项目周报
+                </td>
+            </tr>
+            <tr style="border:none;">
+                <td colspan="4" style="border:none;  height: 20px; text-align: left; vertical-align: middle;">
+                    @*时间：@Model.reportInfo.ReportWeekDateBegin.Year.ToString()年 @Model.reportInfo.ReportWeekDateBegin.Month.ToString()月 @Model.reportInfo.ReportWeekDateBegin.Day.ToString()日－@Model.reportInfo.ReportWeekDateEnd.Year.ToString()年 @Model.reportInfo.ReportWeekDateEnd.Month.ToString()月 @Model.reportInfo.ReportWeekDateEnd.Day.ToString()日*@
+                    时间：
+                    @{
+                       
+                        string CreateTime = Model.reportInfo.ReportWeekDateBegin.Year.ToString()+"年"+ Model.reportInfo.ReportWeekDateBegin.Month.ToString()+"月"+Model.reportInfo.ReportWeekDateBegin.Day.ToString()+"日－"+Model.reportInfo.ReportWeekDateEnd.Year.ToString()+"年" +Model.reportInfo.ReportWeekDateEnd.Month.ToString()+"月"+ Model.reportInfo.ReportWeekDateEnd.Day.ToString()+"日" ;
+                        Session["ReportCreateTime"] = CreateTime;
+                    }
+                    @CreateTime
+                 </td>
+                <td colspan="3" style="border:none;  height: 20px; text-align: right; vertical-align: middle;">
+                    报告提交人：@Model.reportInfo.Author
+                    @{
+                        Session["PersonName"] = "<span style=\"font-size: 10.5pt;font-family:'宋体';\">" + Model.reportInfo.Author + "</span>";
+                    }
+               
+                </td>
+            </tr>
+           @{
+
+               List<KALAYUNITSM.ENTITY.WeeklyReports.ReportsData> list = Model.reportDataList.OrderBy(u => u.ContentNumber).ToList();
+               var thisWeekReport = list.Where(u => u.ContentType == 1).OrderBy(u => u.ContentNumber).ToList();
+               int totalCount = 0;
+
+               for (int i = 0; i < thisWeekReport.Count; i++)
+               {
+                   totalCount = i + 1;
+                <tr>
+                    <td colspan="7" style=" height: 20px; font-weight:bold;">
+                        @totalCount、@thisWeekReport[i].ProjectName
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="7" style=" height: 20px;">
+                        @{
+                           thisWeekReport[i].Content = thisWeekReport[i].Content.Insert(0, "<div  style=\"font-size: 10.5pt;font-family:'宋体';\">");
+                           thisWeekReport[i].Content = thisWeekReport[i].Content.Insert(thisWeekReport[i].Content.Length, "</div>");
+                           @Html.Raw(thisWeekReport[i].Content);
+                        }
+                    </td>
+                </tr>
+               }
+               totalCount++;
+                @*<tr>
+                    <td colspan="7" style=" height: 20px; font-weight:bold;">
+                        @totalCount、用户投诉与处理
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="7" style=" height: 20px;">
+                      无
+                    </td>
+                </tr>*@
+                //totalCount++;
+                <tr>
+                    <td colspan="7" style=" height: 20px; font-weight:bold;">
+                        @totalCount、服务级别协议达成情况
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="7" style=" height: 20px;">
+                        未添加
+                    </td>
+                </tr>
+               totalCount++;
+              string contentHtml_All = "";
+              var nextWeekReport = list.Where(u => u.ContentType == 2).OrderBy(u => u.ContentNumber).ToList();
+              if (nextWeekReport != null && nextWeekReport.Count > 0)
+              {
+
+                  List<KALAYUNITSM.WEB.Areas.WeeklyReports.Controllers.NextWeekTitle> projectNameTypeList = nextWeekReport.Select(u => new KALAYUNITSM.WEB.Areas.WeeklyReports.Controllers.NextWeekTitle { RowName = u.ProjectName }).Distinct().ToList();
+
+                  Dictionary<string, string> contentList = new Dictionary<string, string>();
+                  foreach (var item in nextWeekReport)
+                  {
+                      foreach (var model in projectNameTypeList)
+                      {
+                          if (item.ContentType == 2 && item.ProjectName == model.RowName)
+                          {
+                              item.Content = item.Content.Insert(0, "<div  style=\"font-size: 10.5pt;font-family:'宋体';\">");
+                              item.Content = item.Content.Insert(item.Content.Length, "</div>");
+                              contentList.Add(model.RowName, item.Content);
+
+                          }
+                      }
+                  }
+                  int i = 1;
+                  for (int j = 0; j < projectNameTypeList.Count; j++)
+                  {
+                      if (contentList[projectNameTypeList[j].RowName] != null)
+                      {
+                          contentHtml_All += "<span>" + i.ToString() + "、" + projectNameTypeList[j].RowName + "</span>";
+                          contentHtml_All += contentList[projectNameTypeList[j].RowName];
+                          contentHtml_All += "<br />";
+                          i++;
+                      }
+                  }
+                  //这个是防止html导出字体奇形怪状的根开头结尾都加一个宋体的DIV
+                  contentHtml_All = contentHtml_All.Insert(0, "<div  style=\"font-size: 10.5pt;font-family:'宋体';\">");
+                  contentHtml_All = contentHtml_All.Insert(contentHtml_All.Length, "</div>");
+              }
+                <tr>
+                    <td colspan="7" style=" height: 20px; font-weight:bold;">
+                        @totalCount、下周工作计划
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="7" style=" height: 20px;">
+                        @{
+                           
+                           @Html.Raw(contentHtml_All);
+                        }
+                    </td>
+                </tr>
+}
+            @*<tr >
+                <td colspan="7" style=" height: 20px; font-weight:bold;">
+                    一、终端运维
+                </td>
+            </tr>
+            <tr>
+                <td colspan="7" style=" height: 20px;">
+                    @{
+                        string contentHtml = "";
+                        if (Model.reportDataList != null && Model.reportDataList.Count > 0)
+                        {
+
+                            foreach (var item in Model.reportDataList)
+                            {
+                                if (item.ContentType == 1 && item.ProjectName == "终端运维")
+                                {
+                                  //  item.Content = item.Content.Replace("font-size: 10.5pt;", "font-size: 10.5pt;font-family:'宋体';");
+                                    //这个是防止html导出字体奇形怪状的根开头结尾都加一个宋体的DIV
+                                    item.Content = item.Content.Insert(0, "<div  style=\"font-size: 10.5pt;font-family:'宋体';\">");
+                                    item.Content = item.Content.Insert(item.Content.Length, "</div>");
+                                    contentHtml += item.Content;                                                              
+                                }
+                               
+                            }
+                            @Html.Raw(contentHtml);
+                            Session["ContentPart_1"] = contentHtml;
+                        }
+
+                    }
+                    </td>
+                    </tr>
+                    <tr>
+                        <td colspan="7" style=" height: 20px; font-weight:bold;">
+                            二、机房巡检
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="7" style=" height: 20px;">
+                            @{
+                                string contentHtml1 = "";
+                                if (Model.reportDataList != null && Model.reportDataList.Count > 0)
+                                {
+
+                                    foreach (var item in Model.reportDataList)
+                                    {
+                                        if (item.ContentType == 1 && item.ProjectName == "机房巡检")
+                                        {
+                                          //  item.Content = item.Content.Replace("font-size: 10.5pt;", "font-size: 10.5pt;font-family:'宋体';");
+                                            item.Content = item.Content.Insert(0, "<div  style=\"font-size: 10.5pt;font-family:'宋体';\">");
+                                            item.Content = item.Content.Insert(item.Content.Length , "</div>");
+                                            contentHtml1 += item.Content;
+                                        }
+
+                                    }
+                                    @Html.Raw(contentHtml1);
+                                    Session["ContentPart_2"] = contentHtml1;
+                                }
+
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="7" style=" height: 20px; font-weight:bold;">
+                            三、技术支持
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="7" style=" height: 20px;">
+                            @{
+                                string contentHtml2 = "";
+                                if (Model.reportDataList != null && Model.reportDataList.Count > 0)
+                                {
+
+                                    foreach (var item in Model.reportDataList)
+                                    {
+                                        if (item.ContentType == 1 && item.ProjectName == "技术支持")
+                                        {
+                                          //  item.Content = item.Content.Replace("font-size: 10.5pt;", "font-size: 10.5pt;font-family:'宋体';");
+                                            item.Content = item.Content.Insert(0, "<div  style=\"font-size: 10.5pt;font-family:'宋体';\">");
+                                            item.Content = item.Content.Insert(item.Content.Length , "</div>");
+                                            contentHtml2 += item.Content;
+                                        }
+
+                                    }
+                                    @Html.Raw(contentHtml2);
+                                    Session["ContentPart_3"] = contentHtml2;
+                                }
+
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="7" style=" height: 20px; font-weight:bold;">
+                            四、其他临时工作
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="7" style=" height: 20px;">
+                            @{
+                                string contentHtml3 = "";
+                                if (Model.reportDataList != null && Model.reportDataList.Count > 0)
+                                {
+
+                                    foreach (var item in Model.reportDataList)
+                                    {
+                                        if (item.ContentType == 1 && item.ProjectName == "临时工作")
+                                        {
+                                          //  item.Content = item.Content.Replace("font-size: 10.5pt;", "font-size: 10.5pt;font-family:'宋体';");
+                                            item.Content = item.Content.Insert(0, "<div  style=\"font-size: 10.5pt;font-family:'宋体';\">");
+                                            item.Content = item.Content.Insert(item.Content.Length , "</div>");
+                                            contentHtml3 += item.Content;
+                                        }
+
+                                    }
+                                    @Html.Raw(contentHtml3);
+                                    Session["ContentPart_4"] = contentHtml3;
+                                }
+
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="7" style=" height: 20px; font-weight:bold;">
+                            五、用户投诉与处理
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="7" style=" height: 20px;">
+                            无
+                            @{
+                                Session["ContentPart_5"] = "<div  style=\"font-size: 10.5pt;font-family:'宋体';\">无</div>";
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="7" style=" height: 20px; font-weight:bold;">
+                            六、服务级别协议达成情况
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="7" style=" height: 20px;">
+                            待添加
+                            @{
+                                Session["ContentPart_6"] = "<div  style=\"font-size: 10.5pt;font-family:'宋体';\">待添加</div>";
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="7" style=" height: 20px; font-weight:bold;">
+                            七、下周工作计划
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="7" style=" height: 20px;">
+                            @{
+                                string contentHtml_All= "";
+                            
+                               
+                                if (Model.reportDataList != null && Model.reportDataList.Count > 0)
+                                {
+
+                                    Dictionary<string, string> contentList = new Dictionary<string, string>();
+                                    foreach (var item in Model.reportDataList)
+                                    {
+                                        if (item.ContentType == 2 && item.ProjectName == "终端运维")
+                                        {
+
+
+                                       //     item.Content = item.Content.Replace("font-size: 10.5pt;", "font-size: 10.5pt;font-family:'宋体';");
+                                            item.Content = item.Content.Insert(0, "<div  style=\"font-size: 10.5pt;font-family:'宋体';\">");
+                                            item.Content = item.Content.Insert(item.Content.Length , "</div>"); 
+                                            contentList.Add("终端运维", item.Content);
+                                          
+                                            
+                                        
+                                        }
+                                        if (item.ContentType == 2 && item.ProjectName == "汇总")
+                                        {
+
+
+                                            //     item.Content = item.Content.Replace("font-size: 10.5pt;", "font-size: 10.5pt;font-family:'宋体';");
+                                            item.Content = item.Content.Insert(0, "<div  style=\"font-size: 10.5pt;font-family:'宋体';\">");
+                                            item.Content = item.Content.Insert(item.Content.Length, "</div>");
+                                            contentList.Add("汇总", item.Content);
+
+
+
+                                        }
+                                        if (item.ContentType == 2 && item.ProjectName == "机房巡检")
+                                        {
+
+                                           // item.Content = item.Content.Replace("font-size: 10.5pt;", "font-size: 10.5pt;font-family:'宋体';");
+                                            item.Content = item.Content.Insert(0, "<div  style=\"font-size: 10.5pt;font-family:'宋体';\">");
+                                            item.Content = item.Content.Insert(item.Content.Length , "</div>");
+                                                contentList.Add("机房巡检", item.Content);
+                                             
+                                        }
+                                        if (item.ContentType == 2 && item.ProjectName == "技术支持")
+                                        {
+
+                                         //   item.Content = item.Content.Replace("font-size: 10.5pt;", "font-size: 10.5pt;font-family:'宋体';");
+                                            item.Content = item.Content.Insert(0, "<div  style=\"font-size: 10.5pt;font-family:'宋体';\">");
+                                            item.Content = item.Content.Insert(item.Content.Length , "</div>");
+                                             
+                                                contentList.Add("技术支持", item.Content);
+                                              
+                                        }
+                                        if (item.ContentType == 2 && item.ProjectName == "临时工作")
+                                        {
+
+
+                                        //    item.Content = item.Content.Replace("font-size: 10.5pt;", "font-size: 10.5pt;font-family:'宋体';");
+                                            item.Content = item.Content.Insert(0, "<div  style=\"font-size: 10.5pt;font-family:'宋体';\">");
+                                            item.Content = item.Content.Insert(item.Content.Length , "</div>");
+                                                contentList.Add("临时工作", item.Content);
+                                             
+                                        }
+
+                                    }
+                                 
+                                        //contentHtml_All += "<span>" + (i+1).ToString() + "、"+contentList[i][+"</span>";
+                                        //contentHtml_All += contentList[i].Values.ToString();
+                                    
+                                    int i = 1;
+                                    try
+                                    {
+                                        if (contentList["终端运维"] != null)
+                                        {
+                                            contentHtml_All += "<span>" + i.ToString() + "、终端运维工作</span>";
+                                            contentHtml_All += contentList["终端运维"];
+                                            contentHtml_All += "<br />";
+                                            i++;
+                                        }
+                                    }
+                                    catch (Exception)
+                                    {
+                                       
+                                    }
+                                    try
+                                    {
+                                        if (contentList["机房巡检"] != null)
+                                        {
+                                            contentHtml_All += "<span>" + i.ToString() + "、机房巡检工作</span>";
+                                            contentHtml_All += contentList["机房巡检"];
+                                            contentHtml_All += "<br />";
+                                            i++;
+                                        }
+                                    }
+                                    catch (Exception)
+                                    {
+                                        
+                                      
+                                    }
+                                    try
+                                    {
+                                        if (contentList["技术支持"] != null)
+                                        {
+                                            contentHtml_All += "<span>" + i.ToString() + "、技术支持工作</span>";
+                                            contentHtml_All += contentList["技术支持"];
+                                            contentHtml_All += "<br />";
+                                            i++;
+                                        }
+                                    }
+                                    catch (Exception)
+                                    {
+
+
+                                    }
+                                    try
+                                    {
+                                        if (contentList["临时工作"] != null)
+                                        {
+                                            contentHtml_All += "<span>" + i.ToString() + "、其他临时工作</span>";
+                                            contentHtml_All += contentList["临时工作"];
+                                            contentHtml_All += "<br />";
+                                            i++;
+                                        }
+                                    }
+                                    catch (Exception)
+                                    {
+
+
+                                    }
+                                    try
+                                    {
+                                        if (contentList["汇总"] != null)
+                                        {
+                                            contentHtml_All += "<span>" + i.ToString() + "、汇总</span>";
+                                            contentHtml_All += contentList["汇总"];
+                                            contentHtml_All += "<br />";
+                                            i++;
+                                        }
+                                    }
+                                    catch (Exception)
+                                    {
+
+
+                                    }
+                                    //这个是防止html导出字体奇形怪状的根开头结尾都加一个宋体的DIV
+                                    contentHtml_All = contentHtml_All.Insert(0, "<div  style=\"font-size: 10.5pt;font-family:'宋体';\">");
+                                    contentHtml_All = contentHtml_All.Insert(contentHtml_All.Length , "</div>");
+                               //     contentHtml_All = contentHtml_All.Replace("<span>", "<span  style=\"font-size: 10.5pt;font-family:'宋体';\">");
+                                    @Html.Raw(contentHtml_All);
+                                    Session["ContentPart_7"] = contentHtml_All;
+                                }
+
+                            }
+                        </td>
+                    </tr>*@
+                  
+
+
+    
+                </tbody>
+    
+    </table>
+    @*<table id="reportDataHtml" border="1" cellpadding="1" cellspacing="1" class="table-striped" style="height: 100%; width: 100%;font-family:宋体">
+        <tbody>
+            <tr>
+                <td colspan="7" style=" height: 40px; text-align: center; vertical-align: middle;">
+                    <h2>个人运维工作周报</h2>
+                </td>
+            </tr>
+            <tr>
+                <td style="">项目名称</td>
+                <td colspan="3" rowspan="1" style="">@Model.reportInfo.ProjectName</td>
+                <td style="">汇报日期</td>
+                <td colspan="2" rowspan="1" style="">@Model.reportInfo.ReportWeekDateBegin.Month.@Model.reportInfo.ReportWeekDateBegin.Day-@Model.reportInfo.ReportWeekDateEnd.Month.@Model.reportInfo.ReportWeekDateEnd.Day</td>
+            </tr>
+            <tr>
+                <td style="">汇报人</td>
+                <td colspan="3" rowspan="1" style="">@Model.reportInfo.Author</td>
+                <td style="">紧急度</td>
+                <td colspan="2" rowspan="1" style="">
+
+                    @{
+                        string Level = "";
+                        string el = Model.reportInfo.EmergencyLevel;
+                        switch (el)
+                        {
+                            default:
+                                break;
+                            case "1":
+                                Level = "低";
+                                break;
+                            case "2":
+                                Level = "中";
+                                break;
+                            case "3":
+                                Level = "高";
+                                break;
+                        }
+                    }
+                    @Level
+                </td>
+            </tr>
+            <tr>
+                <td colspan="7" style=" text-align: center; height: 40px;">
+                    <h3><strong>本周工作任务及执行情况</strong></h3>
+                </td>
+            </tr>
+            <tr>
+                <td style=" text-align: center;">序号</td>
+                <td style=" text-align: center;">工作项目</td>
+                <td style=" text-align: center;">工作内容</td>
+                <td style=" text-align: center;">责任人</td>
+                <td style=" text-align: center;">日期</td>
+                <td style=" text-align: center;">完成情况</td>
+                <td style=" text-align: center;">状态</td>
+            </tr>
+
+            @{
+                if (Model.reportDataList != null && Model.reportDataList.Count > 0)
+                {
+                    foreach (var item in Model.reportDataList)
+                    {
+                        if (item.ContentType == 1)
+                        {
+                            <tr>
+                                <td style=" text-align: center;">@item.ContentNumber</td>
+                                <td style=" text-align: center;">@item.ProjectName</td>
+                                <td style=" ">@Html.Raw(item.Content)</td>
+                                <td style=" text-align: center;">@item.LiablePerson</td>
+                                <td style=" text-align: center;">@item.StartTime.Value.ToShortDateString()-@item.EndTime.Value.ToShortDateString()</td>
+                                <td style=" ">@Html.Raw(item.CompleteStatus)</td>
+
+                                @{ string workTypeTemp = "";
+                                 switch (item.WorkType)
+                                 {
+                                     default:
+                                         break;
+                                     case "A":
+                                         workTypeTemp = "已完成";
+                                         break;
+                                     case "B":
+                                         workTypeTemp = "进展中";
+                                         break;
+                                     case "C":
+                                         workTypeTemp = "未开始";
+                                         break;
+                                     case "D":
+                                         workTypeTemp = "延期已完成";
+                                         break;
+                                 }
+                                }
+                                <td style=" text-align: center;">@workTypeTemp</td>
+
+                            </tr>
+                        }
+                    }
+                }
+
+            }
+
+
+            <tr>
+                <td colspan="7" style=" text-align: center; height: 40px;">
+                    <h3>下周工作计划</h3>
+                </td>
+            </tr>
+            <tr>
+                <td style=" text-align: center;">序号</td>
+                <td style=" text-align: center;">工作项目</td>
+                <td style=" text-align: center;">工作内容</td>
+                <td style=" text-align: center;">责任人</td>
+                <td style=" text-align: center;">日期</td>
+                <td colspan="2" rowspan="1" style=" text-align: center;">备注</td>
+            </tr>
+            @{
+                if (Model.reportDataList != null && Model.reportDataList.Count > 0)
+                {
+                    foreach (var item in Model.reportDataList)
+                    {
+                        if (item.ContentType == 2)
+                        {
+                            <tr>
+                                <td style=" text-align: center;">@item.ContentNumber</td>
+                                <td style=" text-align: center;">@item.ProjectName</td>
+                                <td style=" ">@Html.Raw(item.Content)</td>
+                                <td style=" text-align: center;">@item.LiablePerson</td>
+                                <td style=" text-align: center;">@item.StartTime.Value.ToShortDateString()-@item.EndTime.Value.ToShortDateString()</td>
+                                <td colspan="2" rowspan="1" style=" ">@Html.Raw(item.Remark)</td>
+                            </tr>
+                        }
+                    }
+                }
+            }
+
+            <tr>
+                <td colspan="7" style=" text-align: center; height: 40px;">
+                    <h3>发现问题、建议及解决计划</h3>
+                </td>
+            </tr>
+            <tr>
+                <td style=" text-align: center;">序号</td>
+                <td colspan="2" rowspan="1" style=" text-align: center;">问题</td>
+                <td colspan="2" rowspan="1" style=" text-align: center;">原因</td>
+                <td colspan="2" rowspan="1" style=" text-align: center;">解决方案</td>
+            </tr>
+            @{
+                if (Model.reportDataList != null && Model.reportDataList.Count > 0)
+                {
+                    foreach (var item in Model.reportDataList)
+                    {
+                        if (item.ContentType == 3)
+                        {
+                            <tr>
+                                <td style=" text-align: center;">@item.ContentNumber</td>
+                                <td colspan="2" rowspan="1" style=" ">@Html.Raw(item.Problem)</td>
+                                <td colspan="2" rowspan="1" style="">@Html.Raw(item.Result)</td>
+                                <td colspan="2" rowspan="1" style=" ">@Html.Raw(item.Solution)</td>
+                            </tr>
+                        }
+                    }
+                }
+            }
+
+            <tr>
+                <td colspan="7" style=" text-align: center; height: 40px;">
+                    <h3>上级审阅意见</h3>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="7" style=" text-align: center; height: 80px;">@Html.Raw(Model.reportInfo.LeaderOpinion)</td>
+            </tr>
+        </tbody>
+    </table>*@
+
+
+    @*<div align="center">
+
+            <a href="ReportList.html" class="btn btn-default" style="display:none;">提交周报</a>
+            <button type="button" class="btn btn-default" onclick="ExportWord();">导出报告</button>
+        </div>*@
+</body>
+</html>

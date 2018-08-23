@@ -1,0 +1,345 @@
+﻿@{
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+
+@using PagedList.Mvc;
+@using PagedList;
+@model PagedList<KALAYUNITSM.ENTITY.WeeklyReports.WeeklyReports>
+@*@model List<KALAYUNITSM.ENTITY.WeeklyReports.WeeklyReports>*@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>MyReports</title>
+    <style type="text/css">
+        .reveal-modal-bg {
+            position: fixed;
+            height: 100%;
+            width: 100%;
+            z-index: 100;
+            display: none;
+            top: 0;
+            left: 0;
+            background: rgba(00, 00, 00, 0.8);
+        }
+
+        .reveal-modal {
+            visibility: hidden;
+            top: 150px;
+            left: 50%;
+            margin-left: -300px;
+            width: 520px;
+            position: absolute;
+            z-index: 101;
+            padding: 30px 40px 34px;
+            -moz-border-radius: 5px;
+            -webkit-border-radius: 5px;
+            border-radius: 5px;
+            -moz-box-shadow: 0 0 10px rgba(0,0,0,.4);
+            -webkit-box-shadow: 0 0 10px rgba(0,0,0,.4);
+            -box-shadow: 0 0 10px rgba(0,0,0,.4);
+            background-color: #FFF;
+        }
+
+            .reveal-modal.small {
+                width: 200px;
+                margin-left: -140px;
+            }
+
+            .reveal-modal.medium {
+                width: 400px;
+                margin-left: -240px;
+            }
+
+            .reveal-modal.large {
+                width: 600px;
+                margin-left: -340px;
+            }
+
+            .reveal-modal.xlarge {
+                width: 800px;
+                margin-left: -440px;
+            }
+
+            .reveal-modal .close-reveal-modal {
+                font-size: 22px;
+                line-height: 0.5;
+                position: absolute;
+                top: 8px;
+                right: 11px;
+                color: #333;
+                text-shadow: 0 -1px 1px rbga(0,0,0,.6);
+                font-weight: bold;
+                cursor: pointer;
+            }
+
+        body {
+            background-color: #F2F2F2;
+        }
+           input{
+             
+                white-space: nowrap;
+                text-overflow: ellipsis;
+            }
+    </style>
+    <link rel="stylesheet" type="text/css" href="../../Content/WeeklyReports/styles/simditor.css" />
+    <link rel="stylesheet" type="text/css" href="../../Content/WeeklyReports/styles/bootstrap.css" />
+
+    <!--<script src="http://www.jq22.com/jquery/jquery-1.10.2.js"></script>-->
+
+    <script type="text/javascript" src="../../Content/WeeklyReports/scripts/jquery-1.10.2.js"></script>
+    <script type="text/javascript" src="../../Content/WeeklyReports/scripts/module.min.js"></script>
+    <!--<script src="http://www.jq22.com/jquery/1.6.4/jquery.min.js"></script>-->
+    <script type="text/javascript" src="../../Content/WeeklyReports/scripts/jquery-1.6.4.min.js"></script>
+    <script type="text/javascript" src="../../Content/WeeklyReports/jquery.reveal.js"></script>
+    <script>
+        $(document).ready(function () {
+
+            removeViewHtmlCode();
+        });
+        function removeViewHtmlCode() {                         //去除所有带View的输入框HTML标签的方法 begin
+            var inputs = $("input");                    //下边是初次加载时去除HTML标签的方法 begin
+            $(inputs).each(function (j) {
+                //   alert("0");
+                var inputView = $(this);
+                var inId = inputView.attr("id");
+                if (inId != undefined && inId.indexOf("View") > 0) {
+                    var description = inputView.val();
+                    description = description.replace(/(\n)/g, "");
+                    description = description.replace(/(\t)/g, "");
+                    description = description.replace(/(\r)/g, "");
+                    description = description.replace(/<\/?[^>]*>/g, "");
+                    description = description.replace(/\s*/g, "");
+                    description = description.replace("&nbsp;", "");
+
+                    inputView.val(description);
+                }
+            });                                                     //去除HTML标签END
+
+        }
+        function openDataEditView(e) {
+
+            var inputView = $(e);
+            var trParent = inputView.parent();      //获取td栏 因为是同一个td里的
+            $(trParent).children().each(function (j) {
+                try {
+                    var inputItem = $(this);     //这是每一个td里的input框
+                    var name = inputItem.attr("id");
+
+                    if (name != undefined) {
+                        if (name.indexOf("View") < 0)         //找到content结点
+                        {
+                            $("#myModal").html(inputItem.val());
+                            $('#click1').click();
+                            return;
+                        }
+
+                    }
+                } catch (e) {
+
+                }
+
+            })
+
+        }
+        function openDataEdit(e) {
+            inputId = $(e);
+            if (inputId.val().length == 0) {
+                $("#myModal").html(inputId.val());
+                //$(".simditor-body").html("<p>&nbsp;</p>");           //有个bug，如果是空的弹出来输入法会有点问题，加一个判定
+            }
+            else {
+                $("#myModal").html(inputId.val());
+                //$(".simditor-body").html(inputId.val());
+            }
+
+            $('#click1').click();
+            //$(".simditor-body").focus();
+        }
+    </script>
+</head>
+<body style="background-color: #fafffb;">
+
+    <div id="getData">
+        <h4 class="container-fluid" style="text-align:center;">我的周报列表</h4>
+        @using (Html.BeginForm("ReportSearch", null, FormMethod.Post))
+        {
+            <div class="row">
+                <div class="col-lg-3">
+                    <div class="input-group">
+
+                        <input type="text" class="form-control" name="projectName" placeholder="请输入关键词">
+                        <span class="input-group-btn">
+                            <input type="date" class="form-control" name="reportDate" placeholder="请输入关键词">
+                            <button class="layui-btn  layui-btn-warm" type="submit"> <i class="layui-icon">&#xe615;</i>搜索</button>
+                        </span>
+                    </div><!-- /input-group -->
+                </div><!-- /.col-lg-6 -->
+            </div>
+        }
+        <table class="table  table-hover" >
+            <tr>
+                <td>
+                    本年周数
+                </td>
+                <td>
+                    报告周期（起）
+                </td>
+                <td>
+                    报告周期（止）
+                </td>
+                <td>
+                    项目名称
+                </td>
+                <td>
+                    作者
+                </td>
+                @*<td>
+                        紧急度
+                    </td>*@
+                <td>
+                    周报状态
+                </td>
+                <td>
+                    领导
+                </td>
+                <td>
+                    领导意见
+                </td>
+                <td>
+                    导出
+                </td>
+                <td>
+                    查看
+                </td>
+                <td>
+                    编辑
+                </td>
+                <td>
+                    删除
+                </td>
+            </tr>
+
+            <tbody id="getTableData" class=".table-striped" >
+
+
+                @foreach (var item in Model)
+                {
+                    <tr >
+                        @{@*string Level = "";*@
+                    string reportStatus = "";
+                    //switch (item.EmergencyLevel)
+                    //{
+                    //    default:
+                    //        break;
+                    //    case "1":
+                    //        Level = "低";
+                    //        break;
+                    //    case "2":
+                    //        Level = "中";
+                    //        break;
+                    //    case "3":
+                    //        Level = "高";
+                    //        break;
+                    //}
+                    switch (item.ReportType)
+                    {
+                        default:
+                            break;
+                        //case 1:
+                        //    reportStatus = "已提交";
+                        //    break;
+                        //case 2:
+                        //    reportStatus = "已审批/通过";
+                        //    break;
+                        //case 3:
+                        //    reportStatus = "已审批/未通过";
+                        //    break;
+                        case 1:
+                            reportStatus = "未审阅";
+                            break;
+                        case 2:
+                            reportStatus = "已审阅";
+                            break;
+                        case 3:
+                            reportStatus = "已审阅";
+                            break;
+                    }
+                    <td class="col-1">
+                        <input type="text" readonly="readonly" style="border:none;background-color: #fafffb;background-color: #fafffb;" class="layui-input" value="@item.WeekCount" />
+                    </td>
+                            <td class="col-xs-1">
+                                <input type="text" readonly="readonly" style="border:none;background-color: #fafffb;" class="layui-input" value="@item.ReportWeekDateBegin.ToShortDateString()" />
+                            </td>
+                            <td class="col-xs-1">
+                                <input type="text" readonly="readonly" style="border:none;background-color: #fafffb;" class="layui-input" value="@item.ReportWeekDateEnd.ToShortDateString()" />
+                            </td>
+
+                            <td class="col-xs-2">
+                                <input type="text" readonly="readonly" style="border:none;background-color: #fafffb;" class="layui-input" value="@item.ProjectName" />
+                            </td>
+                            <td class="col-1">
+                                <input type="text" readonly="readonly" style="border:none;background-color: #fafffb;" class="layui-input" value="@item.Author" />
+                            </td>
+                            @*<td class="col-1">
+                            <input type="text" readonly="readonly" style="border:none;background-color: #fafffb;" class="layui-input" value="@Level" />
+                        </td>*@
+                            <td class="col-1">
+                                <input type="text" readonly="readonly" style="border:none;background-color: #fafffb;" class="layui-input" value="@reportStatus" />
+                            </td>
+                            <td class="col-1">
+                                <input type="text" readonly="readonly" style="border:none;background-color: #fafffb;" class="layui-input" value="@item.LeaderName" />
+                            </td>
+                            <td class="col-xs-1">
+                                <input type="hidden" readonly="readonly" style="border:none;background-color: #fafffb;" class="layui-input" value="@item.LeaderOpinion" id="Leader" onclick="openDataEdit(this);" />
+                                <input type="text" readonly="readonly" style="border:none;background-color: #fafffb;  text-overflow: ellipsis;white-space: nowrap;" class="layui-input" value="@item.LeaderOpinion" id="LeaderView" onclick="openDataEditView(this);" />
+                            </td>
+                            <td>
+                                <a href="@Url.Action("ReportView", "WeeklyReports", new { lId = item.Id })" class="layui-btn layui-btn-normal"><i class="layui-icon">&#xe601;</i>导出预览</a>
+                            </td>
+                            <td>
+                                <a href="@Url.Action("ReportInfo", "WeeklyReports", new { lId = item.Id, ProjectName = item.ProjectName, WeekCount = item.WeekCount, EmergencyLevel = item.EmergencyLevel, Author = item.Author })" class="layui-btn layui-btn-normal"><i class="layui-icon">&#xe705;</i>周报详情</a>
+                            </td>
+                            <td>
+                                @if (item.ReportType == 2)
+                                {
+                                    <a href="javascript:return false;" class="layui-btn layui-btn-warm" style="opacity: 0.2"><i class="layui-icon">&#xe642;</i>编辑</a>
+                                }
+                                else
+                                {
+                                    <a href="@Url.Action("ReportEdit", "WeeklyReports", new { lId = item.Id})" class="layui-btn layui-btn-warm"><i class="layui-icon">&#xe642;</i>编辑</a>
+                                }
+                               
+
+                                <!--<button type="button" class="btn btn-default" >周报详情</button>-->
+                            </td>
+                            <td>
+                                <a href="@Url.Action("ReportDelete", "WeeklyReports", new { lId = item.Id})" onclick="if(confirm('确定删除?')==false)return false;" class="layui-btn layui-btn-danger"><i class="layui-icon">&#xe640;</i>删除</a>
+                            </td>
+                        }
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+        @Html.PagedListPager(Model, page => Url.Action("MyReports", new
+        {
+            page
+        }))
+        <div id="myModal" class="reveal-modal">
+
+            @*<textarea id="editor" placeholder="Balabala" autofocus hidden="hidden"></textarea>*@
+            @*<button type="button" onclick="saveData();">保存数据</button>*@
+
+            <a class="close-reveal-modal">&times;</a>
+        </div>
+        <a href="#" class="big-link" id="click1" data-reveal-id="myModal" hidden="hidden" data-animation="fade">jquery点我弹出</a>
+        <button type="button" onclick="getTableData();" class="btn btn-default " style="display:none;">获取工作</button>
+    </div>
+
+
+
+</body>
+</html>

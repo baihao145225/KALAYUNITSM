@@ -1,0 +1,87 @@
+﻿@{
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<div class="content">
+    <form id="form" class="layui-form">
+        @Html.AntiForgeryToken()
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">SLT名称</label>
+                <div class="layui-input-inline">
+                    <input type="hidden" name="Id" />
+                    <input type="text" name="Name" lay-verify="required" placeholder="请输入服务级别目标" autocomplete="off" class="layui-input width300">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">紧急程度</label>
+                <div class="layui-input-inline">
+                    <select name="UrgencyLevel" id="UrgencyLevel" lay-verify="required"></select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">影响范围</label>
+                <div class="layui-input-inline">
+                    <select name="EffectLevel" id="EffectLevel" lay-verify="required"></select>
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">响应时间</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="ResponseDuration" id="ResponseDuration" placeholder="请输入分钟数" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">解决时间</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="FinishDuration" id="FinishDuration" placeholder="请输入分钟数" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item" style="display: none">
+            <div class="layui-input-block">
+                <button id="btnSubmit" class="layui-btn" lay-submit lay-filter="add">提交</button>
+            </div>
+        </div>
+    </form>
+</div>
+@section scripts {
+    <script>
+        var form = layui.form, layedit = layui.layedit;
+        var layer = layui.layer;
+
+        $("#UrgencyLevel").bindSelect({
+            url: "/Manage/ItemsDetail/GetItemByCode?itemCode=urgency"
+        });
+        $("#EffectLevel").bindSelect({
+            url: "/Manage/ItemsDetail/GetItemByCode?itemCode=effect"
+        });
+        var primaryKey = $.getQueryString("primaryKey");
+        if (primaryKey) {
+            $.ajax({
+                url: "/Configure/SLTs/GetForm",
+                data: { primaryKey: primaryKey },
+                type: "post",
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    $("#form").formSerialize(data);
+                }
+            });
+        }
+
+        form.render();
+
+        form.on('submit(add)', function (data) {
+            $.formSubmit({
+                url: "/Configure/SLTs/SaveForm",
+                data: data.field
+            });
+            return false;
+        });
+
+    </script>
+}

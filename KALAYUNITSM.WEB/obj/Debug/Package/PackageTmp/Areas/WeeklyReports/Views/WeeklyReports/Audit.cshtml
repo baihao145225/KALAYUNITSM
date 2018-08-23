@@ -1,0 +1,52 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Audit</title>
+  <script>
+      function closeThisWindow() {
+          parent.layer.closeAll();
+      }
+   
+  </script>
+</head>
+<body>
+    <div class="col-md-12">
+        @using (Html.BeginForm(null, null, FormMethod.Post))
+        {         
+        
+            <div class="content" style="background-color: #fafffb;">
+                     
+                @*<div class="layui-form-item" >
+                    <label class="layui-form-label">审核结果</label>
+                    <div class="layui-input-block" style="width: 90%;height:70%;">
+                        <input type="radio" name="AuditResult" class="radio_true_full"  value="true" title="通过" checked> 通过
+                        <input type="radio" name="AuditResult" class="radio_true_full" style="margin-left:5%;" value="false" title="不通过"> 不通过
+                    </div>
+                </div>*@
+                <input type="hidden" name="lId" id="lId" value="@ViewBag.lId" />
+                <div class="layui-form-item">
+                    <label class="layui-form-label">审核意见</label>
+                    <div class="layui-input-block" style="width: 90%;height:70%;">
+                        <textarea name="Opinion" id="Opinion" placeholder="请输入内容" class="layui-textarea "></textarea>
+                    </div>
+                </div>
+                <div align="center">
+                    <!--<button type="button" onclick="#" class="btn btn-default " style="text-align:center;">提交周报</button>-->
+                    <a href="ReportList.html" class="btn btn-default" style="display:none;">提交周报</a>
+                    <button type="submit" class="layui-btn layui-btn-warm" id="btnSub"><i class="layui-icon">&#x1005;</i>审阅提交</button>
+                </div>
+            </div>
+        }
+        </div>
+ 
+   
+</body>
+
+</html>

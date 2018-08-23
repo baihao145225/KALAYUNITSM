@@ -1,0 +1,91 @@
+﻿@{
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<blockquote class="layui-elem-quote news_search">
+    <div id="toolbar" class="layui-inline">
+        <div class="layui-inline">
+            <div class="layui-input-inline">
+                <input type="text" id="keyword" placeholder="请输入关键字" class="layui-input search_input">
+            </div>
+            <a class="layui-btn search_btn layui-btn-small" id="btnSearch">查询</a>
+        </div>
+        <div id="layui-btn-group" class="layui-inline toolsTable"></div>
+    </div>
+</blockquote>
+<div class="layui-form">
+    <table class="layui-table" id="gridList" lay-filter="gridList"></table>
+</div>
+@section scripts {
+    <script type="text/javascript">
+        var table = layui.table;
+        initGrid();
+        $("#btnSearch").click(initGrid);
+        $("#toolbar").authorizeButton(window.location.pathname);
+
+        function initGrid() {
+            var _curr = 0;
+            var _count = 0;
+            var _keyword = $("#keyword").val();
+
+            table.render({
+                elem: '#gridList'
+                , id: 'gridList'
+                , url: '/Manage/Role/GetJsonData'
+                    , cols: [[
+                     { checkbox: true, fixed: false }
+                     , { field: 'EnCode', title: '编码', width: 300 }
+                     , { field: 'Name', title: '角色', width: 200 }
+                     , { field: 'TypeName', title: '类型' }
+                     , { field: 'SortCode', title: '排序码', width: 100, sort: true }
+                     , { field: 'IsEnable', title: '状态', width: 80, sort: true, templet: '#IsEnableTpl' }
+                    ]],
+                curr: _curr,
+                where: { keyword: _keyword },
+                done: function (res, curr, count) {
+                    _curr = curr;
+                    _count = count;
+                },
+                request: {
+                    pageName: 'curr'
+            , limitName: 'nums'
+                }
+            });
+        }
+
+        function btn_add() {
+            $.buttonAdd({
+                title: "创建角色",
+                content: "/Manage/Role/Form"
+            });
+        }
+        function btn_edit() {
+            $.buttonEdit({
+                title: "修改角色",
+                content: "/Manage/Role/Form"
+            });
+        }
+        function btn_delete() {
+            $.buttonChk({
+                url: "/Manage/Role/Delete"
+            });
+        }
+        function btn_authorize() {
+            var checkStatus = table.checkStatus('gridList')
+            , data = checkStatus.data;
+            if (data.length != 1) {
+                $.layerMsg("请勾选指定角色授权。", "warning");
+                return;
+            }
+            $.layerOpen({
+                id: "authorize",
+                title: "角色授权",
+                width: "500px",
+                content: "/Manage/RoleAuthorize/Index?primaryKey=" + data[0].Id,
+                yes: function (iBody, iWindow) {
+                    iWindow.formSubmit();
+                }
+            });
+        }
+    </script>
+}
+

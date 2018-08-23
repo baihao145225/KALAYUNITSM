@@ -1,0 +1,53 @@
+﻿@{
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<link rel="stylesheet" type="text/css" href="~/Scripts/select2/css/select2.css" media="all" />
+<div class="content">
+    <form id="form" class="layui-form">
+        @Html.AntiForgeryToken()
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label label-required">流转给</label>
+                <div class="layui-input-inline">
+                    <select lay-ignore name="NextUser" id="NextUser" lay-verify="required" class="select2"></select>
+                    <input type="hidden" name="OrderChkStatus" value="@KALAYUNITSM.ENTITY.OrdersStatusEnums.已流转" />
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">其他描述</label>
+            <div class="layui-input-block" style="width: 200px;">
+                <textarea name="Description" placeholder="请输入内容" class="layui-textarea"></textarea>
+            </div>
+        </div>
+        <div class="layui-form-item" style="display: none">
+            <div class="layui-input-block">
+                <button id="btnSubmit" class="layui-btn" lay-submit lay-filter="add">提交</button>
+            </div>
+        </div>
+    </form>
+</div>
+@section scripts {
+    <script type="text/javascript" src="~/Scripts/select2/js/select2.min.js"></script>
+    <script>
+        var primaryKey = $.getQueryString("primaryKey");
+        $("#NextUser").bindSelect({
+            url: "/Manage/User/GetParent"
+        });
+
+        layui.use(['form', 'layer'], function () {
+            var form = layui.form;
+
+            form.render();
+
+            form.on('submit(add)', function (data) {
+                data.field.OrderId = primaryKey;
+                $.formSubmit({
+                    url: "/Itsm/OrderChk/SaveForm",
+                    data: data.field
+                });
+                return false;
+            });
+        });
+    </script>
+}

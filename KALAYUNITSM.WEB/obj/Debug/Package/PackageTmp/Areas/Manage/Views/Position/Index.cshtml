@@ -1,0 +1,143 @@
+﻿@{
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+
+<link href="~/Scripts/ztree/css/metroStyle/metroStyle.css" rel="stylesheet" />
+<div class="col-md-2">
+    <div class="elight-panel container-panel">
+        <ul id="treeItem" class="ztree"></ul>
+    </div>
+</div>
+<div class="col-md-10">
+    <blockquote class="layui-elem-quote news_search">
+        <div id="toolbar" class="layui-inline">
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <input type="text" id="keyword" placeholder="请输入关键字" class="layui-input search_input">
+                </div>
+                <a class="layui-btn search_btn layui-btn-small" id="btnSearch">查询</a>
+            </div>
+            <div id="layui-btn-group" class="layui-inline toolsTable"></div>
+        </div>
+    </blockquote>
+    <div class="layui-form">
+        <table class="layui-table" id="gridList" lay-filter="gridList"></table>
+    </div>
+</div>
+@section scripts {
+<script src="~/Scripts/ztree/js/jquery.ztree.all.min.js"></script>
+    <script type="text/javascript">
+        var table = layui.table;
+        var form = layui.form;
+        
+        var setting = {
+            data: {
+                simpleData: {
+                    enable: true
+                }
+            },
+            check: {
+                enable: false,
+                chkStyle: "checkbox",
+                chkDisabledInherit: false
+            },
+            async: {
+                enable: true,
+                url: "/Manage/Position/GetListTree",
+                dataType: "text",
+                autoParam: ["id", "name"]
+            }, callback: {
+                onAsyncSuccess: function (event, treeId, treeNode, msg) {
+                    var node = zTreeObj.getNodesByFilter(function (node) {
+                        return node.level == 0
+                    }, true);
+                    zTreeObj.selectNode(node);
+                    zTreeObj.setting.callback.onClick(event, zTreeObj.setting.treeId, node);
+                },
+                onClick: function (event, treeId, treeNode) {
+                    initGrid();
+                }
+            }
+        };
+
+        var zTreeObj = $.fn.zTree.init($("#treeItem"), setting);
+
+        $("#btnSearch").click(initGrid);
+        $("#toolbar").authorizeButton(window.location.pathname);
+
+        function initGrid() {
+            var _curr = 0;
+            var _count = 0;
+            var _keyword = $("#keyword").val();
+
+
+            var treeObj = $.fn.zTree.getZTreeObj("treeItem");
+            var _parentId = "";
+            if (treeObj.getSelectedNodes()[0] != null) {
+                _parentId = treeObj.getSelectedNodes()[0].id;
+            }
+
+            table.render({
+                elem: '#gridList'
+                , id: 'gridList'
+                , url: '/Manage/Position/GetJsonData'
+                    , cols: [[
+                     { checkbox: true, fixed: false }
+                     , { field: 'EnCode', title: '编码', width: 300 }
+                     , { field: 'Name', title: '角色', width: 200 }
+                     , { field: 'TypeName', title: '类型' }
+                     , { field: 'SortCode', title: '排序码', width: 100, sort: true }
+                     , { field: 'IsEnable', title: '状态', width: 80, sort: true, templet: '#IsEnableTpl' }
+                    ]],
+                curr: _curr,
+                where: {
+                    keyword: _keyword,
+                    parentId: _parentId
+                },
+                done: function (res, curr, count) {
+                    _curr = curr;
+                    _count = count;
+                },
+                request: {
+                    pageName: 'curr'
+            , limitName: 'nums'
+                }
+            });
+        }
+
+        function btn_add() {
+            $.buttonAdd({
+                title: "创建岗位",
+                content: "/Manage/Position/Form"
+            });
+        }
+        function btn_edit() {
+            $.buttonEdit({
+                title: "修改岗位",
+                content: "/Manage/Position/Form"
+            });
+        }
+        function btn_delete() {
+            $.buttonChk({
+                url: "/Manage/Position/Delete"
+            });
+        }
+        function btn_authorize() {
+            var checkStatus = table.checkStatus('gridList')
+            , data = checkStatus.data;
+            if (data.length != 1) {
+                $.layerMsg("请勾选指定角色授权。", "warning");
+                return;
+            }
+            $.layerOpen({
+                id: "authorize",
+                title: "角色授权",
+                width: "500px",
+                content: "/Manage/RoleAuthorize/Index?primaryKey=" + data[0].Id,
+                yes: function (iBody, iWindow) {
+                    iWindow.formSubmit();
+                }
+            });
+        }
+    </script>
+}

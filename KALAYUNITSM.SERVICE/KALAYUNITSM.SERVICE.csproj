@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{6960B946-9D37-4382-AE2A-60578916F478}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>KALAYUNITSM.SERVICE</RootNamespace>
+    <AssemblyName>KALAYUNITSM.SERVICE</AssemblyName>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BaseService.cs" />
+    <Compile Include="CIRelationsService.cs" />
+    <Compile Include="OrderChkService.cs" />
+    <Compile Include="OrderTempleteService.cs" />
+    <Compile Include="OrdersService.cs" />
+    <Compile Include="FAQsCategoryService.cs" />
+    <Compile Include="FAQsService.cs" />
+    <Compile Include="PositionService.cs" />
+    <Compile Include="RelationsService.cs" />
+    <Compile Include="CIService.cs" />
+    <Compile Include="CIGroupService.cs" />
+    <Compile Include="ContactsService.cs" />
+    <Compile Include="CustomerService.cs" />
+    <Compile Include="ItemsDetailService.cs" />
+    <Compile Include="ContractService.cs" />
+    <Compile Include="LocaltionService.cs" />
+    <Compile Include="SLAService.cs" />
+    <Compile Include="SLTsService.cs" />
+    <Compile Include="OrganizationService.cs" />
+    <Compile Include="LogService.cs" />
+    <Compile Include="ServiceCatalogService.cs" />
+    <Compile Include="ItemService.cs" />
+    <Compile Include="PermissionService.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RoleAuthorizeService.cs" />
+    <Compile Include="SLASLTsService.cs" />
+    <Compile Include="UserPositionRelationService.cs" />
+    <Compile Include="UserRoleRelationService.cs" />
+    <Compile Include="RoleService.cs" />
+    <Compile Include="UserService.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\KALAYUNITSM.COMMON\KALAYUNITSM.COMMON.csproj">
+      <Project>{cad52ec2-3907-4168-ae8f-73f96f337542}</Project>
+      <Name>KALAYUNITSM.COMMON</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\KALAYUNITSM.DATA\KALAYUNITSM.DATA.csproj">
+      <Project>{404d0842-f183-428d-93e9-2010193ecf22}</Project>
+      <Name>KALAYUNITSM.DATA</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\KALAYUNITSM.ENTITY\KALAYUNITSM.ENTITY.csproj">
+      <Project>{7043c417-ccd5-4ee8-b65e-4f70b0456bbe}</Project>
+      <Name>KALAYUNITSM.ENTITY</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\KALAYUNITSM.IREPOSITORY\KALAYUNITSM.IREPOSITORY.csproj">
+      <Project>{943880b1-59e0-4667-8e54-3b82383ea86e}</Project>
+      <Name>KALAYUNITSM.IREPOSITORY</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\KALAYUNITSM.ISERVICE\KALAYUNITSM.ISERVICE.csproj">
+      <Project>{12f877b7-54ad-4f68-8329-b446f33841dc}</Project>
+      <Name>KALAYUNITSM.ISERVICE</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\KALAYUNITSM.REPOSITORY\KALAYUNITSM.REPOSITORY.csproj">
+      <Project>{4c36275e-6a9a-4e11-935d-ea8a54957323}</Project>
+      <Name>KALAYUNITSM.REPOSITORY</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

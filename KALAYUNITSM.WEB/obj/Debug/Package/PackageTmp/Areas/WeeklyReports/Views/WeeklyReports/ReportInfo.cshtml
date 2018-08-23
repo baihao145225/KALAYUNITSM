@@ -1,0 +1,468 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+@model List<KALAYUNITSM.ENTITY.WeeklyReports.ReportsData>
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>MyReports</title>
+    <style type="text/css">
+    .reveal-modal-bg {
+        position: fixed;
+        height: 100%;
+        width: 100%;
+        z-index: 100;
+        display: none;
+        top: 0;
+        left: 0;
+        background: rgba(00, 00, 00, 0.8);
+    }
+
+    .reveal-modal {
+        visibility: hidden;
+        top: 150px;
+        left: 50%;
+        margin-left: -300px;
+        width: 520px;
+        position: absolute;
+        z-index: 101;
+        padding: 30px 40px 34px;
+        -moz-border-radius: 5px;
+        -webkit-border-radius: 5px;
+        border-radius: 5px;
+        -moz-box-shadow: 0 0 10px rgba(0,0,0,.4);
+        -webkit-box-shadow: 0 0 10px rgba(0,0,0,.4);
+        -box-shadow: 0 0 10px rgba(0,0,0,.4);
+        background-color: #FFF;
+    }
+
+        .reveal-modal.small {
+            width: 200px;
+            margin-left: -140px;
+        }
+
+        .reveal-modal.medium {
+            width: 400px;
+            margin-left: -240px;
+        }
+
+        .reveal-modal.large {
+            width: 600px;
+            margin-left: -340px;
+        }
+
+        .reveal-modal.xlarge {
+            width: 800px;
+            margin-left: -440px;
+        }
+
+        .reveal-modal .close-reveal-modal {
+            font-size: 22px;
+            line-height: 0.5;
+            position: absolute;
+            top: 8px;
+            right: 11px;
+            color: #333;
+            text-shadow: 0 -1px 1px rbga(0,0,0,.6);
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+    body {
+        background-color: #F2F2F2;
+    }
+</style>
+<link rel="stylesheet" type="text/css" href="../../Content/WeeklyReports/styles/simditor.css" />
+<link rel="stylesheet" type="text/css" href="../../Content/WeeklyReports/styles/bootstrap.css" />
+<script type="text/javascript" src="../../Content/WeeklyReports/scripts/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../Content/WeeklyReports/scripts/module.min.js"></script>
+<script type="text/javascript" src="../../Content/WeeklyReports/scripts/jquery-1.6.4.min.js"></script>
+<script type="text/javascript" src="../../Content/WeeklyReports/jquery.reveal.js"></script>
+<script>
+    $(document).ready(function () {
+
+        removeViewHtmlCode();
+    });
+    function removeViewHtmlCode() {                         //去除所有带View的输入框HTML标签的方法 begin    
+        var inputs = $("input");                    //下边是初次加载时去除HTML标签的方法 begin    
+        $(inputs).each(function (j) {
+            //   alert("0");
+            var inputView = $(this);
+            var inId = inputView.attr("id");
+            if (inId != undefined && inId.indexOf("View") > 0) {
+                var description = inputView.val();
+                description = description.replace(/(\n)/g, "");
+                description = description.replace(/(\t)/g, "");
+                description = description.replace(/(\r)/g, "");
+                description = description.replace(/<\/?[^>]*>/g, "");
+                description = description.replace(/\s*/g, "");
+                description = description.replace("&nbsp;", "");
+
+                inputView.val(description);
+            }
+        });                                                     //去除HTML标签END
+
+    }
+        function openDataEdit(e) {
+            inputId = $(e);
+            if (inputId.val().length == 0) {
+                $("#myModal").html(inputId.val());
+                //$(".simditor-body").html("<p>&nbsp;</p>");           //有个bug，如果是空的弹出来输入法会有点问题，加一个判定
+            }
+            else {
+                $("#myModal").html(inputId.val());
+                //$(".simditor-body").html(inputId.val());
+            }
+
+            $('#click1').click();
+            //$(".simditor-body").focus();
+        }
+        function openDataEditView(e) {
+           
+            var inputView = $(e);
+            var trParent = inputView.parent();      //获取td栏 因为是同一个td里的       
+            $(trParent).children().each(function (j) {
+                try {             
+                    var inputItem = $(this);     //这是每一个td里的input框
+                    var name = inputItem.attr("id");
+                 
+                    if (name != undefined) {                    
+                        if (name.indexOf("View") < 0)         //找到content结点
+                        {
+                            $("#myModal").html(inputItem.val());
+                            $('#click1').click();
+                            return;
+                        }
+
+                    }
+                } catch (e) {
+
+                }
+
+            })
+
+        }
+</script>
+</head>
+<body>
+  
+
+    <div class="container-fluid">
+        <div class="row-fluid">
+            <div class="col-lg-11">
+                <h2 class="container-fluid" style="text-align:center;">周报详情</h2>
+                <hr />
+                <span class="col-sm-3">项目名称：@ViewBag.ProjectName</span>
+                <span class="col-sm-3">
+                    汇报周期：
+                    第
+                    @ViewBag.WeekCount
+                    周
+                </span>
+                <span class="col-sm-3">汇报人：@ViewBag.Author</span>
+                <span class="col-sm-3">
+                    紧急度：
+                    @{
+                        string Level = "";
+                        string el = ViewBag.EmergencyLevel;
+                        switch (el)
+                        {
+                            default:
+                                break;
+                            case "1":
+                                Level = "低";
+                                break;
+                            case "2":
+                                Level = "中";
+                                break;
+                            case "3":
+                                Level = "高";
+                                break;
+                        }
+                    }
+                    @Level
+                </span>
+                <br />
+                <div id="FormData">
+                    <h4 class="container-fluid" style="text-align:center;">本周工作任务及执行情况</h4>
+                    <table class="table table-striped">
+                        <tr>
+                            <td>
+                                序号
+                            </td>
+                            <td>
+                                工作项目
+                            </td>
+                            <td>
+                                工作内容
+                            </td>
+                            <td>
+                                负责人
+                            </td>
+                            <td>
+                                开始日期
+                            </td>
+                            <td>
+                                结束日期
+                            </td>
+                            <td>
+                                完成情况
+                            </td>
+                            <td>
+                                状态
+                            </td>
+
+                        </tr>
+
+                        <tbody id="TableData">
+                            @{
+                                if (Model != null)
+                                {
+                                    foreach (var item in Model)
+                                    {
+                                        if (item.ContentType == 1)
+                                        {
+                                            <tr>
+                                                <td class="col-xs-1">
+                                                    <input type="text" readonly=readonly class="form-control" value="@item.ContentNumber" data-reveal-id="myModal" data-animation="fade" />
+                                                </td>
+                                                <td class="col-xs-1">
+                                                    <input type="text" readonly=readonly class="form-control" value="@item.ProjectName" />
+                                                </td>
+                                                <td class="col-xs-1">
+                                                    <input type="hidden" readonly=readonly class="form-control" value="@item.Content" id="Content" onclick="openDataEdit(this);" />
+                                                    <input type="text" readonly=readonly class="form-control" value="@item.Content" id="ContentView" onclick="openDataEditView(this);" />
+                                                </td>
+                                                <td class="col-xs-1">
+                                                    <input type="text" readonly=readonly class="form-control" value="@item.LiablePerson" />
+                                                </td>
+                                                <td class="col-xs-1">
+                                                    <input type="text" readonly=readonly class="form-control" value="@item.StartTime.Value.ToShortDateString()" />
+                                                </td>
+                                                <td class="col-xs-1">
+                                                    <input type="text" readonly=readonly class="form-control" value="@item.EndTime.Value.ToShortDateString()" />
+                                                <td class="col-xs-1">
+                                                    <input type="hidden" readonly=readonly class="form-control" value="@item.CompleteStatus" id="CompleteStatus" onclick="openDataEdit(this);" />
+                                                    <input type="text" readonly=readonly class="form-control" value="@item.CompleteStatus" id="CompleteStatusView" onclick="openDataEditView(this);" />
+                                                </td>
+                                                @{
+                                            string workTypeTemp = "";
+                                            switch (item.WorkType)
+                                            {
+                                                default:
+                                                    break;
+                                                case "A":
+                                                    workTypeTemp = "已完成";
+                                                    break;
+                                                case "B":
+                                                    workTypeTemp = "进展中";
+                                                    break;
+                                                case "C":
+                                                    workTypeTemp = "未开始";
+                                                    break;
+                                                case "D":
+                                                    workTypeTemp = "延期已完成";
+                                                    break;
+                                            }
+                                                }
+                                                <td class="col-xs-1">
+                                                    <input type="text" readonly=readonly class="form-control" value="@workTypeTemp" />
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                }
+
+                            }
+                        </tbody>
+                    </table>
+
+
+
+
+                </div>
+
+                <div id="NextData">
+                    <h4 class="container-fluid" style="text-align:center;">下周工作计划</h4>
+                    <table class="table table-striped">
+                        <tr>
+                            <td>
+                                序号
+                            </td>
+                            <td>
+                                工作项目
+                            </td>
+                            <td>
+                                工作内容
+                            </td>
+                            <td>
+                                负责人
+                            </td>
+                            <td>
+                                开始日期
+                            </td>
+                            <td>
+                                结束日期
+                            </td>
+                            @*<td>
+                        完成情况
+                    </td>*@
+                            <td>
+                                备注
+                            </td>
+
+                        </tr>
+
+                        <tbody id="TableDataNext">
+                            @{
+                                if (Model != null)
+                                {
+                                    foreach (var item in Model)
+                                    {
+                                        if (item.ContentType == 2)
+                                        {
+                                            <tr>
+                                                <td class="col-xs-1">
+                                                    <input type="text" readonly=readonly class="form-control" value="@item.ContentNumber" />
+                                                </td>
+                                                <td class="col-xs-1">
+                                                    <input type="text" readonly=readonly class="form-control" value="@item.ProjectName" />
+                                                </td>
+                                                <td class="col-xs-1">
+                                                    <input type="hidden" readonly=readonly class="form-control" value="@item.Content" id="Content" onclick="openDataEdit(this);" />
+                                                    <input type="text" readonly=readonly class="form-control" value="@item.Content" id="ContentView" onclick="openDataEditView(this);" />
+                                                </td>
+                                                <td class="col-xs-1">
+                                                    <input type="text" readonly=readonly class="form-control" value="@item.LiablePerson" />
+                                                </td>
+                                                <td class="col-xs-1">
+                                                    <input type="text" readonly=readonly class="form-control" value="@item.StartTime.Value.ToShortDateString()" />
+                                                </td>
+                                                <td class="col-xs-1">
+                                                    <input type="text" readonly=readonly class="form-control" value="@item.EndTime.Value.ToShortDateString()" />
+                                                <td class="col-xs-1">
+                                                    <input type="hidden" readonly=readonly class="form-control" value="@item.Remark" id="Remark" onclick="openDataEdit(this);" />
+                                                    <input type="text" readonly=readonly class="form-control" value="@item.Remark" id="RemarkView" onclick="openDataEditView(this);" />
+                                                </td>
+
+                                            </tr>
+                                        }
+                                    }
+                                }}
+                        </tbody>
+
+
+                    </table>
+
+
+
+                </div>
+
+                <div id="ProblemData">
+                    <h4 class="container-fluid" style="text-align:center;">发现问题、建议及解决计划</h4>
+                    <table class="table table-striped">
+                        <tr>
+                            <td>
+                                序号
+                            </td>
+                            @*<td>
+                        工作项目
+                    </td>*@
+                            <td>
+                                问题
+                            </td>
+                            @*<td>
+                        负责人
+                    </td>*@
+                            @*<td>
+                        开始日期
+                    </td>
+                    <td>
+                        结束日期
+                    </td>*@
+                            <td>
+                                原因
+                            </td>
+                            <td>
+                                解决方案
+                            </td>
+
+                        </tr>
+
+                        <tbody id="TableDataProblem">
+                            @{
+                                if (Model != null)
+                                {
+                                    foreach (var item in Model)
+                                    {
+                                        if (item.ContentType == 3)
+                                        {
+                                            <tr>
+                                                <td class="col-xs-1">
+                                                    <input type="text" readonly=readonly class="form-control" value="@item.ContentNumber" />
+                                                </td>
+                                                <td class="col-xs-1">
+                                                    <input type="hidden" readonly=readonly class="form-control" value="@item.Problem" id="Problem" onclick="openDataEdit(this);" />
+                                                    <input type="text" readonly=readonly class="form-control" value="@item.Problem" id="ProblemView" onclick="openDataEditView(this);" />
+                                                </td>
+                                                <td class="col-xs-1">
+                                                    <input type="hidden" readonly=readonly class="form-control" value="@item.Result" id="Result" onclick="openDataEdit(this);" />
+                                                    <input type="text" readonly=readonly class="form-control" value="@item.Result" id="ResultView" onclick="openDataEditView(this);" />
+                                                </td>
+                                                <td class="col-xs-1">
+                                                    <input type="hidden" readonly=readonly class="form-control" value="@item.Solution" id="Solution" onclick="openDataEdit(this);" />
+                                                    <input type="text" readonly=readonly class="form-control" value="@item.Solution" id="SolutionView" onclick="openDataEditView(this);" />
+                                                </td>
+
+                                            </tr>
+                                        }
+                                    }
+                                }}
+                        </tbody>
+
+
+
+                    </table>
+
+
+                </div>
+
+                <a href="#" class="big-link" id="click1" data-reveal-id="myModal" hidden="hidden" data-animation="fade">jquery点我弹出</a>
+                <!--<input type="text" id="text1" onclick="openDataEdit(this);" />
+    <input type="text" id="text2" onclick="openDataEdit(this);" />-->
+
+                <div id="myModal" class="reveal-modal">
+
+                    <textarea id="editor" placeholder="Balabala" autofocus></textarea>
+                    <button type="button" onclick="saveData();">保存数据</button>
+
+                    <a class="close-reveal-modal">&times;</a>
+                </div>
+            </div>
+            <div class="col-lg-1">
+                <div align="center">
+                    <span class="h4">快捷操作</span>
+                </div>
+                
+                <div align="center">
+                    <a class="btn btn-default" href="@Url.Action("ReportView", "WeeklyReports", new { lId = ViewBag.lId})">周报导出</a>
+                </div>
+                <div align="center">
+                    <a class="btn btn-default" href="@Url.Action("ReportEdit", "WeeklyReports", new { lId = ViewBag.lId })">周报编辑</a>
+                </div>
+                <div align="center">
+                    <a class="btn btn-default" href="@Url.Action("MyReports", "WeeklyReports")">周报列表</a>
+                </div>
+                <div align="center">
+                    <a class="btn btn-default" href="@Url.Action("CreateReport", "WeeklyReports")">周报创建</a>
+                </div>
+               
+            </div>
+            </div>
+        </div>
+            
+</body>
+</html>

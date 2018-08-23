@@ -1,0 +1,166 @@
+﻿@{
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<blockquote class="layui-elem-quote news_search">
+    <div class="layui-inline">
+        <form id="form" class="layui-form">
+            @*<div class="layui-input-inline">
+                    <input type="text" id="keyword" placeholder="请输入关键字" class="layui-input search_input">
+                </div>
+                <a class="layui-btn search_btn layui-btn-small" id="btnSearch">查询</a>*@
+        </form>
+    </div>
+    <div id="toolbar" class="layui-inline">
+        <div id="layui-btn-group" class="layui-inline toolsTable"></div>
+    </div>
+</blockquote>
+<div class="layui-form">
+    <table id="gridList" lay-filter="gridList"></table>
+</div>
+@section scripts {
+    <script type="text/javascript">
+        var table = layui.table;
+
+        initGrid();
+        $("#btnSearch").click(initGrid);
+        $("#toolbar").authorizeButton(window.location.pathname);
+
+        function initGrid() {
+            var _curr = 0;
+            var _count = 0;
+         //   var _keyword = $("#keyword").val();
+            var _keyword = $("#uId").val();
+
+            table.render({
+                elem: '#gridList',
+                id: 'gridList',
+                url: '/WeeklyReports/WeeklyReports/GetPersonsReportsJsonData',
+                cols: [[
+                 { checkbox: true, fixed: true }
+                 , { field: 'WeekCount', title: '周数', width: '10%' }
+                 , { field: 'ProjectName', title: '项目名称', width: '30%' }
+                 , { field: 'Author', title: '作者', width: '20%' }
+                 , { field: 'ReportWeekDateBegin', title: '起始时间', width: '15%' }
+                 , { field: 'ReportWeekDateEnd', title: '结束时间', width: '15%' }
+                 , { field: 'ReportType', title: '周报状态', sort: true, width: '10%' }
+                ]],
+                curr: _curr,
+                where: { keyword: _keyword }
+                ,done: function (res, curr, count) {    //res 接口返回的信息           //这个是把字段数字改成文字的
+
+                    $("[data-field = 'ReportType']").children().each(function () {
+
+                        //if ($(this).text() == '1') {
+
+                        //    $(this).text("未审阅");
+
+                        //} else if ($(this).text() == '2') {
+
+                        //    $(this).text("已审阅");
+
+                        //}
+                        if ($(this).text() == '1') {
+
+                            $(this).text("未审阅");
+
+                        } else  {
+
+                            $(this).text("已审阅");
+
+                        }
+
+                    });
+
+                }
+
+            });
+
+        }
+
+        function btn_add() {
+        //    var checkStatus = table.checkStatus('gridList')
+        //, data = checkStatus.data;
+        //    //  alert(data[0].Id);
+            var index = layer.open({
+                type: 2,
+                title: '新建项目周报',
+                area: ['100%', '100%'],
+                content: '/WeeklyReports/WeeklyReports/CreateProjectReport'  //这里content是一个URL，如果你不想让iframe出现滚动条，你还可以content: ['http://sentsin.com', 'no']
+
+            });
+        }
+        function btn_read() {
+            //$.buttonChk({
+            //    url: "/Manage/Position/Delete"
+            //});
+            var checkStatus = table.checkStatus('gridList')
+         , data = checkStatus.data;
+            //  alert(data[0].Id);
+          var index = layer.open({
+                type: 2,
+                title: data[0].Author + '的第'+data[0].WeekCount+'周周报',
+                area: ['100%', '100%'],
+                content: '/WeeklyReports/WeeklyReports/ReportInfo?lId='+data[0].Id+'&isSelf=3'  //这里content是一个URL，如果你不想让iframe出现滚动条，你还可以content: ['http://sentsin.com', 'no']
+            });
+        }
+        function btn_edit() {
+            //$.buttonChk({
+            //    url: "/Manage/Position/Delete"
+            //});
+            var checkStatus = table.checkStatus('gridList')
+         , data = checkStatus.data;
+            //  alert(data[0].Id);
+            var index = layer.open({
+                type: 2,
+                title: data[0].Author + '的第' + data[0].WeekCount + '周周报',
+                area: ['100%', '100%'],
+                content: '/WeeklyReports/WeeklyReports/ReportEdit?lId=' + data[0].Id,
+            });
+        }
+        function btn_delete() {
+            //$.buttonChk({
+            //    url: "/Manage/Position/Delete"
+            //});
+            var checkStatus = table.checkStatus('gridList')
+         , data = checkStatus.data;
+
+            layer.confirm('确认要删除吗？', {
+                btn: ['确定', '取消']//按钮
+            }, function (index) {
+                layer.close(index);
+                //此处请求后台程序，下方是成功后的前台处理……
+                var index = layer.load(0, { shade: [0.7, '#393D49'] }, { shadeClose: true }); //0代表加载的风格，支持0-2
+                location.href = '/WeeklyReports/WeeklyReports/ReportDelete?lId=' + data[0].Id
+                //      location.href = "HotDeviceManagementServlet?action=restart";
+            });
+        }
+        function btn_export() {
+            var checkStatus = table.checkStatus('gridList')
+           , data = checkStatus.data;
+            //  alert(data[0].Id);
+            var index = layer.open({
+                type: 2,
+                title: data[0].Author + '的第' + data[0].WeekCount + '周周报',
+                area: ['100%', '100%'],
+                content: '/WeeklyReports/WeeklyReports/ReportView?lId=' + data[0].Id,
+            });
+        }
+        function btn_chk() {
+            $.buttonOrder({
+                title: "工单流转",
+                width: "500px",
+                height: "500px",
+                content: "/Itsm/OrderChk/CheckInOrder"
+            });
+        }
+        function btn_allocate() {
+            $.buttonOrder({
+                title: "工单分派",
+                width: "500px",
+                height: "500px",
+                content: "/Itsm/OrderChk/AllocateOrder"
+            });
+        }
+    </script>
+}
+<input type="hidden" id="uId" value="@ViewBag.uId" />

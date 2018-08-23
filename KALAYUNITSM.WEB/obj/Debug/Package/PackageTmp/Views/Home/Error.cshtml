@@ -1,0 +1,51 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>系统提示</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="icon" href="favicon.ico">
+    <link rel="stylesheet" type="text/css" href="~/plugins/layui/css/layui.css" media="all" />
+    <link rel="stylesheet" type="text/css" href="~/css/main.css" media="all" />
+    <script type="text/javascript" src="~/Scripts/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="~/plugins/layui/layui.js"></script>
+</head>
+<body class="main_body">
+    <script>
+        ErrorMsg();
+        function ErrorMsg() {
+            layui.config({
+                base: "/js/"
+            }).use(['layer', 'jquery'], function () {
+                var layer = layui.layer
+                $ = layui.jquery;
+
+                layer.open({
+                    type: 1,
+                    title: "系统提示",
+                    closeBtn: false,
+                    area: '380px',
+                    shade: 0.2,
+                    id: 'LAY_layuipro',
+                    btn: ['返回前页'],
+                    moveType: 1,
+                    content: '<div style="padding:15px 20px; text-align:justify; line-height: 22px; text-indent:2em;border-bottom:1px solid #e2e2e2;"><p>000 @ViewBag.msg </p></div>',
+                    success: function (layero) {
+                        var btn = layero.find('.layui-layer-btn');
+                        btn.css('text-align', 'center');
+                        btn.on("click", function () {
+                            top.location.href = '/Home/Index';
+                        })
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+</html>

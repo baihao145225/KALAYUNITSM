@@ -1,0 +1,87 @@
+﻿@{
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<link rel="stylesheet" type="text/css" href="~/Scripts/select2/css/select2.css" media="all" />
+<link rel="stylesheet" href="~/Scripts/ComboSelect/css/comboselect.css" type="text/css">
+<div class="content">
+    <form id="form" class="layui-form">
+        @Html.AntiForgeryToken()
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">简要描述</label>
+                <div class="layui-input-inline">
+                    <input type="hidden" name="Id" />
+                    <input type="text" name="Name" lay-verify="required" placeholder="请输入简要描述" autocomplete="off" class="layui-input width600">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label label-required">紧急度</label>
+                <div class="layui-input-inline">
+                    <select lay-ignore name="UrgencyId" id="UrgencyId" lay-verify="required" class="select2"></select>
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label label-required">影响范围</label>
+                <div class="layui-input-inline">
+                    <select lay-ignore name="EffectId" id="EffectId" lay-verify="required" class="select2"></select>
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">详细描述</label>
+            <div class="layui-input-block" style="width: 90%;">
+                <textarea name="Description" id="Description" placeholder="请输入内容" class="layui-textarea"></textarea>
+            </div>
+        </div>
+        <div class="layui-form-item" style="display: none">
+            <div class="layui-input-block">
+                <button id="btnSubmit" class="layui-btn" lay-submit lay-filter="add">提交</button>
+            </div>
+        </div>
+    </form>
+</div>
+@section scripts {
+    <script type="text/javascript" src="~/Scripts/ckeditor/ckeditor.js"></script>
+    <script type="text/javascript" src="~/Scripts/ckeditor/config.js"></script>
+    <script type="text/javascript" src="~/Scripts/select2/js/select2.min.js"></script>
+    <script> 
+        $("#UrgencyId").bindSelect({
+            url: "/System/Paras/GetUrgencyLevelTreeJson"
+        });
+        $("#EffectId").bindSelect({
+            url: "/System/Paras/GetEffectLevelTreeJson"
+        });
+
+        var form = layui.form, layedit = layui.layedit;
+        var layer = layui.layer;
+
+        var primaryKey = $.getQueryString("primaryKey");
+        if (primaryKey) {
+            $.ajax({
+                url: "/Itsm/OrderTemplete/GetForm",
+                data: { primaryKey: primaryKey },
+                type: "post",
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    $("#form").formSerialize(data);
+                }
+            });
+        }
+        form.render();
+
+        form.on('submit(add)', function (data) { 
+            $.formSubmit({
+                url: "/Itsm/OrderTemplete/SaveForm",
+                data: data.field
+            });
+            return false;
+        });
+    </script>
+}
+
+
